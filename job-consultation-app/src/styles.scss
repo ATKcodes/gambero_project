@@ -1,0 +1,45 @@
+/* You can add global styles to this file, and also import other style files */
+@import '@ionic/angular/css/core.css';
+@import '@ionic/angular/css/normalize.css';
+@import '@ionic/angular/css/structure.css';
+@import '@ionic/angular/css/typography.css';
+@import '@ionic/angular/css/display.css';
+@import '@ionic/angular/css/padding.css';
+@import '@ionic/angular/css/float-elements.css';
+@import '@ionic/angular/css/text-alignment.css';
+@import '@ionic/angular/css/text-transformation.css';
+@import '@ionic/angular/css/flex-utils.css';
+@import '@ionic/angular/css/ionic.bundle.css';
+
+body {
+  background-color: #f4f5f8;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --ion-color-primary: #FFA500;
+  --ion-color-primary-rgb: 255, 165, 0;
+  --ion-color-primary-contrast: #000000;
+  --ion-color-primary-contrast-rgb: 0, 0, 0;
+  --ion-color-primary-shade: #e09100;
+  --ion-color-primary-tint: #ffae1a;
+
+  --ion-color-secondary: #FF6347;
+  --ion-color-secondary-rgb: 255, 99, 71;
+  --ion-color-secondary-contrast: #000000;
+  --ion-color-secondary-contrast-rgb: 0, 0, 0;
+  --ion-color-secondary-shade: #e0573e;
+  --ion-color-secondary-tint: #ff7359;
+
+  --ion-color-tertiary: #FFFF00;
+  --ion-color-tertiary-rgb: 255, 255, 0;
+  --ion-color-tertiary-contrast: #000000;
+  --ion-color-tertiary-contrast-rgb: 0, 0, 0;
+  --ion-color-tertiary-shade: #e0e000;
+  --ion-color-tertiary-tint: #ffff1a;
+}
