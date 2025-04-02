@@ -5,25 +5,28 @@ const UserSchema = new mongoose.Schema({
   username: {
     type: String,
     required: true,
-    unique: true,
-    trim: true
+    unique: true
+  },
+  fullName: {
+    type: String,
+    required: true
   },
   email: {
     type: String,
     required: true,
-    unique: true,
-    trim: true,
-    lowercase: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please provide a valid email address']
+    unique: true
   },
   password: {
     type: String,
-    required: true,
-    minlength: 6
+    required: true
+  },
+  profileImage: {
+    type: String,
+    default: 'default-profile.jpg'
   },
   userType: {
     type: String,
-    enum: ['buyer', 'seller'],
+    enum: ['client', 'seller'],
     required: true
   },
   createdAt: {
@@ -42,22 +45,14 @@ UserSchema.pre('save', async function(next) {
     return next();
   }
   
-  try {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
-    next();
-  } catch (err) {
-    next(err);
-  }
+  const salt = await bcrypt.genSalt(10);
+  this.password = await bcrypt.hash(this.password, salt);
+  next();
 });
 
-// Compare passwords method
-UserSchema.methods.comparePassword = async function(candidatePassword) {
-  try {
-    return await bcrypt.compare(candidatePassword, this.password);
-  } catch (err) {
-    throw new Error(err);
-  }
+// Compare password method
+UserSchema.methods.comparePassword = async function(password) {
+  return bcrypt.compare(password, this.password);
 };
 
 module.exports = mongoose.model('User', UserSchema); 

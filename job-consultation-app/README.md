@@ -21,7 +21,7 @@ A platform for connecting buyers with sellers for professional job consultations
 ### Prerequisites
 
 - Node.js (v16 or higher)
-- MongoDB (local or Atlas)
+- MongoDB (v4.0 or higher)
 - Angular CLI
 
 ### Installation
@@ -61,6 +61,27 @@ npm start
 ```bash
 npm run server
 ```
+
+### MongoDB on WSL (Developer Note)
+
+When running MongoDB on Windows Subsystem for Linux (WSL), you'll need to manage MongoDB manually:
+
+```bash
+# Starting MongoDB manually (after system restart)
+mkdir -p ~/data/db  # Only needed first time
+mongod --dbpath ~/data/db --fork --logpath ~/mongodb.log
+
+# Stopping MongoDB properly
+mongosh admin --eval "db.shutdownServer()"
+
+# Checking MongoDB status
+ps aux | grep mongod
+
+# Connecting to MongoDB shell
+mongosh
+```
+
+These commands are necessary because WSL doesn't use systemd by default, so standard service management commands won't work.
 
 ### Build for production
 ```bash

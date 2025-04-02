@@ -36,12 +36,13 @@ export class ApiService {
   }
 
   // Auth endpoints
-  register(username: string, email: string, password: string, userType: string): Observable<any> {
+  register(username: string, email: string, password: string, userType: string, fullName: string): Observable<any> {
     return this.http.post(`${this.apiUrl}/auth/register`, {
       username,
       email,
       password,
-      userType
+      userType,
+      fullName
     }).pipe(
       catchError(this.handleError)
     );
