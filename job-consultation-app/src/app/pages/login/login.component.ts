@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonCard, IonCardContent, 
-  IonItem, IonLabel, IonInput, IonRadioGroup, IonRadio, IonButton } from '@ionic/angular/standalone';
+  IonItem, IonInput, IonRadioGroup, IonRadio, IonButton } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -20,7 +20,6 @@ import { AuthService } from '../../services/auth.service';
     IonCard,
     IonCardContent,
     IonItem,
-    IonLabel,
     IonInput,
     IonRadioGroup,
     IonRadio,
@@ -46,6 +45,18 @@ import { AuthService } from '../../services/auth.service';
               type="text" 
               [ngModel]="username" 
               (ngModelChange)="username = $event">
+            </ion-input>
+          </div>
+          
+          <div class="form-field" *ngIf="!isLogin">
+            <ion-input 
+              class="input-field"
+              label="Full Name" 
+              labelPlacement="floating"
+              placeholder="Enter your full name"
+              type="text" 
+              [ngModel]="fullName" 
+              (ngModelChange)="fullName = $event">
             </ion-input>
           </div>
           
@@ -75,7 +86,7 @@ import { AuthService } from '../../services/auth.service';
             
             <ion-radio-group *ngIf="!isLogin" [ngModel]="userType" (ngModelChange)="userType = $event">
               <ion-item lines="none">
-                <ion-radio value="buyer">I want to hire a consultant</ion-radio>
+                <ion-radio value="client">I want to hire a consultant</ion-radio>
               </ion-item>
               <ion-item lines="none"> 
                 <ion-radio value="seller">I want to offer consultations</ion-radio>
@@ -117,7 +128,7 @@ import { AuthService } from '../../services/auth.service';
     
     .logo-section {
       margin-left: 10rem;
-      width: 20%;
+      width: 25%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -258,7 +269,8 @@ export class LoginComponent implements OnInit {
   username = '';
   email = '';
   password = '';
-  userType: 'buyer' | 'seller' = 'buyer';
+  fullName = '';
+  userType: 'client' | 'seller' = 'client';
 
   constructor(
     private authService: AuthService,
@@ -279,6 +291,7 @@ export class LoginComponent implements OnInit {
       isLogin: this.isLogin, 
       email: this.email,
       username: this.username,
+      fullName: this.fullName,
       userType: this.userType
     });
     
@@ -288,7 +301,7 @@ export class LoginComponent implements OnInit {
         error: (err: Error) => console.error('Login error:', err)
       });
     } else {
-      this.authService.register(this.username, this.email, this.password, this.userType).subscribe({
+      this.authService.register(this.username, this.email, this.password, this.userType, this.fullName).subscribe({
         next: () => {
           this.isLogin = true;
           this.router.navigate(['/market']);

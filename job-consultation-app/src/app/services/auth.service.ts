@@ -36,8 +36,8 @@ export class AuthService {
     return this.currentUserSubject.value;
   }
 
-  register(username: string, email: string, password: string, userType: string): Observable<User> {
-    return this.apiService.register(username, email, password, userType).pipe(
+  register(username: string, email: string, password: string, userType: string, fullName: string): Observable<User> {
+    return this.apiService.register(username, email, password, userType, fullName).pipe(
       map(response => {
         // Create user object with the token
         const user: User = {
