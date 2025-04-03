@@ -31,6 +31,7 @@ export class AuthService {
       storedUser ? JSON.parse(storedUser) : null
     );
     this.currentUser = this.currentUserSubject.asObservable();
+    console.log('AuthService initialized, stored user:', storedUser ? 'found' : 'not found');
   }
 
   public get currentUserValue(): User | null {
@@ -38,7 +39,10 @@ export class AuthService {
   }
 
   register(username: string, email: string, password: string, userType: string, fullName: string): Observable<User> {
+    console.log('Register attempt:', { username, email, userType, fullName });
+    
     return this.apiService.register(username, email, password, userType, fullName).pipe(
+      tap(response => console.log('Register response:', response)),
       map(response => {
         // Create user object with the token
         const user: User = {
@@ -52,13 +56,21 @@ export class AuthService {
         // Store user in localStorage
         localStorage.setItem('user', JSON.stringify(user));
         this.currentUserSubject.next(user);
+        console.log('User registered successfully:', user);
         return user;
+      }),
+      catchError(error => {
+        console.error('Registration error details:', error);
+        throw error;
       })
     );
   }
 
   login(email: string, password: string): Observable<User> {
+    console.log('Login attempt for:', email);
+    
     return this.apiService.login(email, password).pipe(
+      tap(response => console.log('Login response:', response)),
       map(response => {
         if (response && response.token) {
           // Create a minimal user object with the token
@@ -73,13 +85,16 @@ export class AuthService {
           // Store user in localStorage
           localStorage.setItem('user', JSON.stringify(user));
           this.currentUserSubject.next(user);
+          console.log('User logged in successfully:', user);
           
           // Return the user
           return user;
         }
+        console.error('Invalid login response structure:', response);
         throw new Error('Invalid login response');
       }),
       catchError(error => {
+        console.error('Login error details:', error);
         throw error;
       })
     );

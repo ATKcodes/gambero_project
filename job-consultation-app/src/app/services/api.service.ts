@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, tap, map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
@@ -10,7 +10,9 @@ import { environment } from '../../environments/environment';
 export class ApiService {
   private apiUrl = environment.apiUrl;
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) {
+    console.log('ApiService initialized with URL:', this.apiUrl);
+  }
 
   // Helper method to get auth token
   private getAuthToken(): string | null {
@@ -20,6 +22,7 @@ export class ApiService {
         const user = JSON.parse(userData);
         return user.token || null;
       } catch (e) {
+        console.error('Error parsing user data from localStorage:', e);
         return null;
       }
     }
@@ -37,6 +40,7 @@ export class ApiService {
 
   // Auth endpoints
   register(username: string, email: string, password: string, userType: string, fullName: string): Observable<any> {
+    console.log(`Making register request to ${this.apiUrl}/auth/register`);
     return this.http.post(`${this.apiUrl}/auth/register`, {
       username,
       email,
@@ -44,15 +48,18 @@ export class ApiService {
       userType,
       fullName
     }).pipe(
+      tap(response => console.log('Register API response:', response)),
       catchError(this.handleError)
     );
   }
 
   login(email: string, password: string): Observable<any> {
+    console.log(`Making login request to ${this.apiUrl}/auth/login`);
     return this.http.post(`${this.apiUrl}/auth/login`, {
       email,
       password
     }).pipe(
+      tap(response => console.log('Login API response:', response)),
       catchError(this.handleError)
     );
   }
@@ -205,21 +212,30 @@ export class ApiService {
     );
   }
 
-  // Error handling
-  private handleError(error: any) {
+  // Enhanced error handling
+  private handleError(error: HttpErrorResponse) {
     console.error('API Error:', error);
-    
     let errorMessage = 'An unknown error occurred';
     
     if (error.error instanceof ErrorEvent) {
       // Client-side error
-      errorMessage = `Error: ${error.error.message}`;
+      errorMessage = `Client Error: ${error.error.message}`;
+      console.error('Client-side error:', error.error.message);
     } else if (error.error && error.error.msg) {
       // Server-side error with message
       errorMessage = error.error.msg;
+      console.error('Server returned error:', error.error.msg);
     } else if (error.status) {
       // HTTP error
-      errorMessage = `Error ${error.status}: ${error.statusText}`;
+      errorMessage = `HTTP Error ${error.status}: ${error.statusText}`;
+      console.error(`Server returned status code ${error.status}:`, error.statusText);
+      
+      // Additional network debugging for specific status codes
+      if (error.status === 0) {
+        console.error('Network error - could not connect to server. Check CORS, server availability, and network connectivity.');
+      } else if (error.status === 404) {
+        console.error('API endpoint not found. Check if the URL is correct:', error.url);
+      }
     }
     
     return throwError(() => new Error(errorMessage));

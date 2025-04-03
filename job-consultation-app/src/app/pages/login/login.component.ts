@@ -2,9 +2,10 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { IonCard, IonCardContent, 
-  IonItem, IonInput, IonRadioGroup, IonRadio, IonButton } from '@ionic/angular/standalone';
+  IonItem, IonInput, IonRadioGroup, IonRadio, IonButton, ToastController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment';
 
 // Color palette for the app
 // Primary color: #FFEBC3
@@ -35,14 +36,35 @@ export class LoginComponent implements OnInit {
   password = '';
   fullName = '';
   userType: 'client' | 'seller' = 'client';
+  isSubmitting = false;
 
   constructor(
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private toastController: ToastController
   ) {}
   
   ngOnInit() {
     console.log('Login component initialized');
+    console.log('API URL:', environment.apiUrl);
+    this.checkLocalStorage();
+  }
+
+  // Check if localStorage is working properly on this device
+  checkLocalStorage() {
+    try {
+      localStorage.setItem('test', 'test');
+      const test = localStorage.getItem('test');
+      if (test === 'test') {
+        console.log('✅ localStorage is working properly');
+      } else {
+        console.warn('⚠️ localStorage set/get mismatch');
+      }
+      localStorage.removeItem('test');
+    } catch (e) {
+      console.error('❌ localStorage is not available:', e);
+      this.showToast('Storage access issue. App may not work properly.');
+    }
   }
 
   toggleMode(): void {
@@ -51,6 +73,9 @@ export class LoginComponent implements OnInit {
   }
 
   handleAuth(): void {
+    if (this.isSubmitting) return;
+    
+    this.isSubmitting = true;
     console.log('Handling auth with:', { 
       isLogin: this.isLogin, 
       email: this.email,
@@ -61,49 +86,45 @@ export class LoginComponent implements OnInit {
     
     if (this.isLogin) {
       this.authService.login(this.email, this.password).subscribe({
-        next: () => this.router.navigate(['/market']),
+        next: () => {
+          console.log('Login successful, navigating to market');
+          this.router.navigate(['/market']);
+        },
         error: (err: Error) => {
           console.error('Login error:', err);
-          this.showError('Invalid email or password. Please try again.');
+          this.showToast(`Login failed: ${err.message}`);
+          this.isSubmitting = false;
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
     } else {
       this.authService.register(this.username, this.email, this.password, this.userType, this.fullName).subscribe({
         next: () => {
-          this.isLogin = true;
+          console.log('Registration successful, navigating to market');
           this.router.navigate(['/market']);
         },
         error: (err: Error) => {
           console.error('Registration error:', err);
-          this.showError('Registration failed. Please try again.');
+          this.showToast(`Registration failed: ${err.message}`);
+          this.isSubmitting = false;
+        },
+        complete: () => {
+          this.isSubmitting = false;
         }
       });
     }
   }
 
-  showError(message: string): void {
-    // Create and append error message
-    const errorElement = document.createElement('div');
-    errorElement.className = 'error-message';
-    errorElement.textContent = message;
-    errorElement.style.color = 'red';
-    errorElement.style.marginTop = '10px';
-    errorElement.style.textAlign = 'center';
-    
-    // Remove any existing error messages
-    const existingErrors = document.querySelectorAll('.error-message');
-    existingErrors.forEach(el => el.remove());
-    
-    // Find the form container and append the error
-    const formContainer = document.querySelector('.form-section');
-    if (formContainer) {
-      formContainer.appendChild(errorElement);
-      
-      // Auto-remove the error after 5 seconds
-      setTimeout(() => {
-        errorElement.remove();
-      }, 5000);
-    }
+  async showToast(message: string) {
+    const toast = await this.toastController.create({
+      message,
+      duration: 3000,
+      position: 'bottom',
+      color: 'danger'
+    });
+    toast.present();
   }
 
   login42(): void {
@@ -114,12 +135,17 @@ export class LoginComponent implements OnInit {
       next: (url) => {
         if (url) {
           // Redirect to 42 OAuth page
+          console.log('Redirecting to 42 OAuth:', url);
           window.location.href = url;
         } else {
           console.error('Failed to get 42 OAuth URL');
+          this.showToast('Failed to get 42 OAuth URL');
         }
       },
-      error: (err: Error) => console.error('42 login error:', err)
+      error: (err: Error) => {
+        console.error('42 login error:', err);
+        this.showToast(`42 login error: ${err.message}`);
+      }
     });
   }
 } 

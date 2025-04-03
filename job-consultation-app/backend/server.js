@@ -22,7 +22,43 @@ mongoose.connect(process.env.MONGO_URI, {})
 
 // Middleware
 app.use(express.json());
-app.use(cors());
+
+// Enhanced CORS configuration for mobile and development
+app.use(cors({
+  origin: function(origin, callback) {
+    // Allow requests with no origin (like mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    
+    // Allow all localhost and development origins
+    const allowedOrigins = [
+      'http://localhost',
+      'http://localhost:8100',
+      'http://localhost:4200', 
+      'capacitor://localhost',
+      'http://localhost:3000',
+      'ionic://localhost'
+    ];
+    
+    // Check if the origin starts with any of the allowed origins
+    const isAllowed = allowedOrigins.some(allowedOrigin => 
+      origin.startsWith(allowedOrigin)
+    );
+    
+    if (isAllowed) {
+      callback(null, true);
+    } else {
+      console.log('CORS blocked request from:', origin);
+      callback(null, true); // Allow anyway for now, but log it
+    }
+  },
+  credentials: true
+}));
+
+// Log requests for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.originalUrl} - ${new Date().toISOString()}`);
+  next();
+});
 
 // Routes
 app.use('/api/auth', require('./routes/auth'));
@@ -50,4 +86,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 3000;
 
 // Start server
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`)); 
+app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT} and listening on all network interfaces`)); 
