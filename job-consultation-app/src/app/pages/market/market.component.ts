@@ -115,6 +115,7 @@ export class MarketComponent implements OnInit {
   sellers: UserProfile[] = [];
   jobs: JobRequest[] = [];
   user: User | null = null;
+  isMessagesPopupOpen = true; // Default to open
   
   constructor(
     private authService: AuthService,
@@ -249,5 +250,9 @@ export class MarketComponent implements OnInit {
       default:
         return 'medium';
     }
+  }
+  
+  toggleMessagesPopup() {
+    this.isMessagesPopupOpen = !this.isMessagesPopupOpen;
   }
 } 
