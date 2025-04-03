@@ -8,6 +8,11 @@
  <div class="form-section">
    <ion-card>
 	 <ion-card-content>
+	   <div class="api-status">
+		 API Status: <span [class]="apiStatus === 'Connected ✅' ? 'connected' : apiStatus === 'Failed ❌' ? 'failed' : 'testing'">{{apiStatus}}</span>
+		 <ion-button size="small" fill="clear" (click)="testApiConnection()">Test</ion-button>
+	   </div>
+
 	   <div class="form-field" *ngIf="!isLogin">
 		 <ion-input 
 		   class="input-field"

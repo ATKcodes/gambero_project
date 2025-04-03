@@ -6,6 +6,7 @@ import { IonCard, IonCardContent,
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 // Color palette for the app
 // Primary color: #FFEBC3
@@ -37,17 +38,41 @@ export class LoginComponent implements OnInit {
   fullName = '';
   userType: 'client' | 'seller' = 'client';
   isSubmitting = false;
+  apiStatus = 'Not tested';
 
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private http: HttpClient
   ) {}
   
   ngOnInit() {
     console.log('Login component initialized');
     console.log('API URL:', environment.apiUrl);
     this.checkLocalStorage();
+    
+    // Test API connection on startup
+    this.testApiConnection();
+  }
+
+  // Test API connectivity
+  testApiConnection() {
+    this.apiStatus = 'Testing...';
+    console.log('Testing API connection to:', `${environment.apiUrl}/test`);
+    
+    this.http.get(`${environment.apiUrl}/test`).subscribe({
+      next: (response) => {
+        console.log('API connection successful:', response);
+        this.apiStatus = 'Connected ✅';
+        this.showToast('API connection successful!', 'success');
+      },
+      error: (error) => {
+        console.error('API connection failed:', error);
+        this.apiStatus = 'Failed ❌';
+        this.showToast(`API connection failed: ${error.message}`, 'danger');
+      }
+    });
   }
 
   // Check if localStorage is working properly on this device
@@ -117,12 +142,12 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  async showToast(message: string) {
+  async showToast(message: string, color: 'danger' | 'success' = 'danger') {
     const toast = await this.toastController.create({
       message,
       duration: 3000,
       position: 'bottom',
-      color: 'danger'
+      color: color
     });
     toast.present();
   }

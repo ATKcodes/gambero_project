@@ -1,15 +1,16 @@
 export const environment = {
   production: false,
   
-  // IMPORTANT: Uncomment the appropriate API URL based on your needs
+  // CHOOSE THE APPROPRIATE API URL BASED ON YOUR SETUP
+  // Uncomment one of these options and comment out the others
   
-  // For emulator testing (points to host's localhost)
-  apiUrl: 'http://10.0.2.2:3000/api', 
+  // 1. Host machine IP address (BEST OPTION FOR REAL DEVICE TESTING)
+  apiUrl: 'http://172.27.98.140:3000/api',
   
-  // For real device testing (replace with your computer's actual IP address)
-  // apiUrl: 'http://192.168.1.X:3000/api', 
+  // 2. Android emulator special address (for emulator only)
+  // apiUrl: 'http://10.0.2.2:3000/api',
   
-  // For web development
+  // 3. Localhost (for web testing only)
   // apiUrl: '/api',
   
   // Debug settings
