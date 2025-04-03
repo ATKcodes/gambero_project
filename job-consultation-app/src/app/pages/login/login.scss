@@ -9,16 +9,16 @@
   height: 100vh;
   display: flex;
   background-color: var(--ion-color-tertiary);
-  padding-left: 3rem;
+  padding-left: 0;
+  overflow-y: auto;
 }
 
 .logo-section {
-  margin-left: 10rem;
   width: 25%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .logo {
@@ -40,25 +40,25 @@
 }
 
 .form-section {
-  margin-left: 12rem;
-  width: 80%;
+  width: 75%;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
 }
 
 ion-card {
-  max-width: 500px;
   width: 100%;
+  max-width: 450px;
   background-color: #FF7532;
   color: white;
   border-radius: 12px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  margin: 1rem;
 }
 
 ion-card-content {
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
 ion-card-title {
@@ -69,7 +69,7 @@ ion-card-title {
 }
 
 .email-field, .password-field {
-  margin-top: 2rem;
+  margin-top: 1rem;
 }
 
 .input-field {
@@ -88,7 +88,7 @@ ion-card-title {
 }
 
 .form-field {
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 ion-item {
@@ -103,19 +103,19 @@ ion-radio {
 }
 
 .button-container {
-  margin-top: 2.5rem;
+  margin-top: 1.5rem;
 }
 
 .login-button {
-  --background: var(--ion-color-primary);
-  --color: white;
-  margin-bottom: 1rem;
+  --background: #FFEBC3;
+  --color: #333;
+  margin-bottom: 0.5rem;
 }
 
 .secondary-button {
   --background: #FFEBC3;
   --color: #333;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 
 .toggle-button {
@@ -126,25 +126,66 @@ ion-radio {
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .login-container {
-	flex-direction: column;
-	padding-left: 1rem;
-	padding-right: 1rem;
+    flex-direction: column;
+    padding: 0;
+    height: 100%;
   }
   
   .logo-section, .form-section {
-	width: 100%;
-	padding: 1rem;
+    width: 100%;
+    padding: 0.5rem;
   }
   
   .logo-section {
-	height: 25%;
+    height: auto;
+    margin-top: 2rem;
+    padding-bottom: 0;
   }
   
   .form-section {
-	height: 75%;
+    height: auto;
+    padding-top: 0;
   }
   
   .logo p {
-	max-width: 100%;
+    max-width: 80%;
+    margin: 0 auto;
+  }
+  
+  .logo h1 {
+    font-size: 3.5rem;
+  }
+  
+  ion-card {
+    margin: 1rem auto;
+    max-width: 95%;
+  }
+  
+  ion-card-content {
+    padding: 1rem;
+  }
+  
+  .form-field {
+    margin-bottom: 12px;
+  }
+}
+
+/* Ensure content doesn't get cut off at the bottom on small screens */
+@media (max-height: 700px) {
+  .login-container {
+    height: auto;
+    min-height: 100vh;
+  }
+  
+  .logo h1 {
+    font-size: 3rem;
+  }
+  
+  .logo p {
+    font-size: 1.2rem;
+  }
+  
+  .form-field {
+    margin-bottom: 8px;
   }
 }
