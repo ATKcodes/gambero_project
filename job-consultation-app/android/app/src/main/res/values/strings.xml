@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Job Consultation</string>
+    <string name="title_activity_main">Job Consultation</string>
+    <string name="package_name">com.jobconsultation.app</string>
+    <string name="custom_url_scheme">com.jobconsultation.app</string>
+</resources>

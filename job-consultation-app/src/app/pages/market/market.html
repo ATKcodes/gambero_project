@@ -9,17 +9,18 @@
   
   <ion-content class="ion-padding">
 	<div class="market-container">
-	  <!-- Header with logo and profile -->
-	  <div class="header-container">
-		<div class="logo-section">
-		  <div class="logo">JC</div>
-		  <div class="app-name">Job Consultation</div>
+	  <!-- Logo section from login page -->
+	  <div class="logo-section">
+		<div class="logo">
+		  <h1>JC</h1>
+		  <p>Quick Question? Cheap answer</p>
 		</div>
-		
-		<div class="profile-section" *ngIf="user">
-		  <div class="profile-image" (click)="router.navigate(['/profile'])">
-			<img [src]="user.profileImage || 'assets/default-profile.jpg'" alt="Profile" />
-		  </div>
+	  </div>
+	  
+	  <!-- Profile section -->
+	  <div class="profile-section" *ngIf="user">
+		<div class="profile-image" (click)="router.navigate(['/profile'])">
+		  <img [src]="user.profileImage || 'assets/default-profile.jpg'" alt="Profile" />
 		</div>
 	  </div>
 	  
@@ -62,48 +63,51 @@
 		  </ion-fab-button>
 		</ion-fab>
 	  </ng-container>
+	</div>
+	
+	<!-- For sellers: X.com style messages popup in bottom right -->
+	<div *ngIf="isSeller" class="twitter-messages-popup" [class.collapsed]="!isMessagesPopupOpen">
+	  <div class="twitter-messages-header" (click)="toggleMessagesPopup()">
+		<h3>Available Jobs</h3>
+		<ion-button fill="clear" size="small" class="close-button">
+		  <ion-icon [name]="isMessagesPopupOpen ? 'chevron-down-outline' : 'chevron-up-outline'"></ion-icon>
+		</ion-button>
+	  </div>
 	  
-	  <!-- For sellers: show available jobs in Twitter-like style -->
-	  <ng-container *ngIf="isSeller">
-		<ion-text color="primary" class="section-title">
-		  <h2>Available Jobs</h2>
-		</ion-text>
-		
-		<div class="twitter-style-messages">
-		  <div class="message-card" *ngFor="let job of jobs" (click)="viewJob(job)">
-			<div class="message-header">
-			  <div class="sender-info">
-				<div class="sender-avatar">
-				  <ion-icon name="person-circle-outline"></ion-icon>
-				</div>
-				<div class="sender-name">
-				  <strong>{{ job.title }}</strong>
-				  <span class="message-date">{{ job.createdAt | date:'short' }}</span>
-				</div>
+	  <div class="twitter-messages-body" *ngIf="isMessagesPopupOpen">
+		<div class="message-card" *ngFor="let job of jobs" (click)="viewJob(job)">
+		  <div class="message-header">
+			<div class="sender-info">
+			  <div class="sender-avatar">
+				<ion-icon name="person-circle-outline"></ion-icon>
 			  </div>
-			  <div class="message-status">
-				<ion-badge [color]="getStatusColor(job.status)">{{ job.status }}</ion-badge>
+			  <div class="sender-name">
+				<strong>{{ job.title }}</strong>
+				<span class="message-date">{{ job.createdAt | date:'short' }}</span>
 			  </div>
 			</div>
-			
-			<div class="message-content">
-			  <p>{{ job.description }}</p>
-			  <p *ngIf="job.expertise" class="expertise-tag">Expertise: {{ job.expertise }}</p>
-			</div>
-			
-			<div class="message-actions">
-			  <ion-button fill="clear" size="small" (click)="viewJob(job); $event.stopPropagation()">
-				<ion-icon name="eye-outline"></ion-icon>
-				View Details
-			  </ion-button>
+			<div class="message-status">
+			  <ion-badge [color]="getStatusColor(job.status)">{{ job.status }}</ion-badge>
 			</div>
 		  </div>
 		  
-		  <div class="empty-state" *ngIf="jobs.length === 0">
-			<ion-icon name="search-outline" size="large"></ion-icon>
-			<p>No jobs available matching your expertise</p>
+		  <div class="message-content">
+			<p>{{ job.description }}</p>
+			<p *ngIf="job.expertise" class="expertise-tag">Expertise: {{ job.expertise }}</p>
+		  </div>
+		  
+		  <div class="message-actions">
+			<ion-button fill="clear" size="small" (click)="viewJob(job); $event.stopPropagation()">
+			  <ion-icon name="eye-outline"></ion-icon>
+			  View Details
+			</ion-button>
 		  </div>
 		</div>
-	  </ng-container>
+		
+		<div class="empty-state" *ngIf="jobs.length === 0">
+		  <ion-icon name="search-outline" size="large"></ion-icon>
+		  <p>No jobs available matching your expertise</p>
+		</div>
+	  </div>
 	</div>
   </ion-content>
