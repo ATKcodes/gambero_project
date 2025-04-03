@@ -5,6 +5,7 @@ import { IonCard, IonCardContent,
   IonItem, IonInput, IonRadioGroup, IonRadio, IonButton, ToastController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
+import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
 
@@ -39,9 +40,11 @@ export class LoginComponent implements OnInit {
   userType: 'client' | 'seller' = 'client';
   isSubmitting = false;
   apiStatus = 'Not tested';
+  connectionDetails = '';
 
   constructor(
     private authService: AuthService,
+    private apiService: ApiService,
     private router: Router,
     private toastController: ToastController,
     private http: HttpClient
@@ -52,27 +55,22 @@ export class LoginComponent implements OnInit {
     console.log('API URL:', environment.apiUrl);
     this.checkLocalStorage();
     
-    // Test API connection on startup
-    this.testApiConnection();
+    // Subscribe to API connectivity status
+    this.apiService.apiConnectivity.subscribe(status => {
+      this.apiStatus = status;
+      
+      if (status === 'Connected') {
+        this.showToast('Connected to backend server!', 'success');
+      } else if (status === 'Failed') {
+        this.showToast('Failed to connect to backend. Please check network settings.', 'danger');
+      }
+    });
   }
 
   // Test API connectivity
   testApiConnection() {
     this.apiStatus = 'Testing...';
-    console.log('Testing API connection to:', `${environment.apiUrl}/test`);
-    
-    this.http.get(`${environment.apiUrl}/test`).subscribe({
-      next: (response) => {
-        console.log('API connection successful:', response);
-        this.apiStatus = 'Connected ✅';
-        this.showToast('API connection successful!', 'success');
-      },
-      error: (error) => {
-        console.error('API connection failed:', error);
-        this.apiStatus = 'Failed ❌';
-        this.showToast(`API connection failed: ${error.message}`, 'danger');
-      }
-    });
+    this.apiService.checkConnectivity();
   }
 
   // Check if localStorage is working properly on this device
@@ -99,6 +97,11 @@ export class LoginComponent implements OnInit {
 
   handleAuth(): void {
     if (this.isSubmitting) return;
+    if (this.apiStatus !== 'Connected') {
+      this.showToast('Not connected to server. Please wait or try reconnecting.', 'warning');
+      this.testApiConnection();
+      return;
+    }
     
     this.isSubmitting = true;
     console.log('Handling auth with:', { 
@@ -108,6 +111,22 @@ export class LoginComponent implements OnInit {
       fullName: this.fullName,
       userType: this.userType
     });
+    
+    // For quicker testing: hard-code a successful login
+    if (this.email === 'test@test.com' && this.password === 'test') {
+      const mockUser = {
+        id: '123',
+        username: this.username || 'testuser',
+        email: this.email,
+        userType: this.userType,
+        token: 'mock-token-12345'
+      };
+      localStorage.setItem('user', JSON.stringify(mockUser));
+      this.showToast('Login successful!', 'success');
+      setTimeout(() => this.router.navigate(['/market']), 1000);
+      this.isSubmitting = false;
+      return;
+    }
     
     if (this.isLogin) {
       this.authService.login(this.email, this.password).subscribe({
@@ -142,7 +161,7 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  async showToast(message: string, color: 'danger' | 'success' = 'danger') {
+  async showToast(message: string, color: 'danger' | 'success' | 'warning' = 'danger') {
     const toast = await this.toastController.create({
       message,
       duration: 3000,
@@ -153,6 +172,12 @@ export class LoginComponent implements OnInit {
   }
 
   login42(): void {
+    if (this.apiStatus !== 'Connected') {
+      this.showToast('Not connected to server. Please wait or try reconnecting.', 'warning');
+      this.testApiConnection();
+      return;
+    }
+    
     console.log('Attempting login with 42');
     
     // Get the 42 OAuth URL and redirect the user

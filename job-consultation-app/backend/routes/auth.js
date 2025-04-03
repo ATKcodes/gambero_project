@@ -224,6 +224,8 @@ router.post('/ft/token', async (req, res) => {
     }
     
     console.log('Received code in ft/token route:', code.substring(0, 10) + '...');
+    console.log('Full request body:', req.body);
+    console.log('Headers:', req.headers);
     
     // Exchange code for access token
     let accessToken;
@@ -231,8 +233,13 @@ router.post('/ft/token', async (req, res) => {
       accessToken = await ftOAuthService.getAccessToken(code);
       console.log('Successfully obtained access token from 42 API');
     } catch (tokenError) {
-      console.error('Error getting access token:', tokenError);
-      return res.status(400).json({ msg: 'Failed to exchange authorization code for token: ' + tokenError.message });
+      console.error('Error getting access token:', tokenError.message);
+      // Return clear error to client
+      return res.status(400).json({ 
+        msg: 'Failed to exchange authorization code for token',
+        error: tokenError.message,
+        details: tokenError.response?.data || 'No additional details'
+      });
     }
     
     // Get user info from 42 API

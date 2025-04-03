@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
-import { Observable, of, throwError } from 'rxjs';
-import { catchError, tap, map } from 'rxjs/operators';
+import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
+import { catchError, tap, map, timeout, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 @Injectable({
@@ -9,9 +9,54 @@ import { environment } from '../../environments/environment';
 })
 export class ApiService {
   private apiUrl = environment.apiUrl;
+  
+  // Fallback URLs in case the primary one doesn't work
+  private apiUrls = [
+    environment.apiUrl,                   // Primary URL from environment
+    'http://172.27.98.140:3000/api',      // Direct IP
+    'http://10.0.2.2:3000/api',           // Android emulator special IP
+    'http://localhost:3000/api'           // Localhost
+  ];
+  
+  private currentApiUrlIndex = 0;
+  public apiConnectivity = new BehaviorSubject<string>('Unknown');
 
   constructor(private http: HttpClient) {
     console.log('ApiService initialized with URL:', this.apiUrl);
+    this.checkConnectivity();
+  }
+
+  // Check connectivity to the backend server
+  checkConnectivity() {
+    this.apiConnectivity.next('Checking...');
+    this.tryNextApiUrl(0);
+  }
+
+  private tryNextApiUrl(index: number) {
+    if (index >= this.apiUrls.length) {
+      console.error('All API URLs failed. No connectivity.');
+      this.apiConnectivity.next('Failed');
+      return;
+    }
+
+    const url = this.apiUrls[index];
+    console.log(`Trying API URL ${index + 1}/${this.apiUrls.length}: ${url}`);
+    
+    this.http.get(`${url}/test`).pipe(
+      timeout(5000), // 5 second timeout
+      catchError(error => {
+        console.warn(`API URL ${url} failed:`, error);
+        this.tryNextApiUrl(index + 1);
+        return of(null);
+      })
+    ).subscribe(response => {
+      if (response) {
+        console.log(`API URL ${url} worked!`, response);
+        this.apiUrl = url;
+        this.currentApiUrlIndex = index;
+        this.apiConnectivity.next('Connected');
+      }
+    });
   }
 
   // Helper method to get auth token
@@ -38,29 +83,53 @@ export class ApiService {
     });
   }
 
+  // Retry method with URL fallback
+  private callWithFallback<T>(request: (url: string) => Observable<T>): Observable<T> {
+    const tryUrl = (index: number): Observable<T> => {
+      if (index >= this.apiUrls.length) {
+        return throwError(() => new Error('All API URLs failed'));
+      }
+      
+      const url = this.apiUrls[index];
+      return request(url).pipe(
+        timeout(5000),
+        catchError(error => {
+          console.warn(`Request failed for ${url}:`, error);
+          return tryUrl(index + 1);
+        })
+      );
+    };
+    
+    return tryUrl(this.currentApiUrlIndex);
+  }
+
   // Auth endpoints
   register(username: string, email: string, password: string, userType: string, fullName: string): Observable<any> {
-    console.log(`Making register request to ${this.apiUrl}/auth/register`);
-    return this.http.post(`${this.apiUrl}/auth/register`, {
-      username,
-      email,
-      password,
-      userType,
-      fullName
-    }).pipe(
-      tap(response => console.log('Register API response:', response)),
-      catchError(this.handleError)
+    console.log(`Trying to register user...`);
+    
+    return this.callWithFallback(url => 
+      this.http.post(`${url}/auth/register`, {
+        username,
+        email,
+        password,
+        userType,
+        fullName
+      }).pipe(
+        tap(response => console.log('Register API response:', response))
+      )
     );
   }
 
   login(email: string, password: string): Observable<any> {
-    console.log(`Making login request to ${this.apiUrl}/auth/login`);
-    return this.http.post(`${this.apiUrl}/auth/login`, {
-      email,
-      password
-    }).pipe(
-      tap(response => console.log('Login API response:', response)),
-      catchError(this.handleError)
+    console.log(`Trying to login user...`);
+    
+    return this.callWithFallback(url => 
+      this.http.post(`${url}/auth/login`, {
+        email,
+        password
+      }).pipe(
+        tap(response => console.log('Login API response:', response))
+      )
     );
   }
 
@@ -73,16 +142,25 @@ export class ApiService {
   }
 
   loginWith42Code(code: string): Observable<any> {
-    return this.http.post(`${this.apiUrl}/auth/ft/token`, {
-      code
-    }).pipe(
-      catchError(this.handleError)
+    console.log(`Trying to login with 42 code...`);
+    
+    // Try the real endpoint only
+    return this.callWithFallback(url => 
+      this.http.post(`${url}/auth/ft/token`, {
+        code
+      }).pipe(
+        tap(response => console.log('42 login API response:', response))
+      )
     );
   }
 
   get42LoginUrl(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/auth/ft/login`).pipe(
-      catchError(this.handleError)
+    console.log(`Trying to get 42 login URL...`);
+    
+    return this.callWithFallback(url => 
+      this.http.get(`${url}/auth/ft/login`).pipe(
+        tap(response => console.log('42 login URL response:', response))
+      )
     );
   }
 

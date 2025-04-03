@@ -146,6 +146,20 @@ ion-radio {
   font-weight: bold;
 }
 
+.offline-login {
+  background-color: rgba(255, 255, 255, 0.9);
+  border-radius: 8px;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  font-size: 0.8rem;
+  color: #333;
+  border-left: 3px solid #ff9800;
+}
+
+.offline-login p {
+  margin: 0.3rem 0;
+}
+
 /* Responsive design for smaller screens */
 @media (max-width: 768px) {
   .login-container {

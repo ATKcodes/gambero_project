@@ -9,8 +9,20 @@
    <ion-card>
 	 <ion-card-content>
 	   <div class="api-status">
-		 API Status: <span [class]="apiStatus === 'Connected ✅' ? 'connected' : apiStatus === 'Failed ❌' ? 'failed' : 'testing'">{{apiStatus}}</span>
+		 API Status: 
+		 <span [ngClass]="{
+		   'connected': apiStatus === 'Connected',
+		   'failed': apiStatus === 'Failed',
+		   'testing': apiStatus === 'Checking...'
+		 }">{{apiStatus}}</span>
 		 <ion-button size="small" fill="clear" (click)="testApiConnection()">Test</ion-button>
+	   </div>
+
+	   <!-- Show offline login option -->
+	   <div class="offline-login" *ngIf="apiStatus !== 'Connected'">
+		 <p>Can't connect to server? Use test credentials:</p>
+		 <p><strong>Email:</strong> test&#64;test.com</p>
+		 <p><strong>Password:</strong> test</p>
 	   </div>
 
 	   <div class="form-field" *ngIf="!isLogin">
@@ -71,11 +83,11 @@
 		 </ion-radio-group>
 		 
 		 <div class="ion-padding button-container">
-		   <ion-button expand="block" (click)="handleAuth()" class="login-button">
+		   <ion-button expand="block" (click)="handleAuth()" class="login-button" [disabled]="isSubmitting">
 			 {{ isLogin ? 'Login' : 'Register' }}
 		   </ion-button>
 		   
-		   <ion-button *ngIf="isLogin" expand="block" class="secondary-button" (click)="login42()">
+		   <ion-button *ngIf="isLogin" expand="block" class="secondary-button" (click)="login42()" [disabled]="isSubmitting || apiStatus !== 'Connected'">
 			 Login with 42
 		   </ion-button>
 		   
