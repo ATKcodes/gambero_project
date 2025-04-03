@@ -1,0 +1,93 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/market"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Unanswered Questions</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="questions-container">
+    <!-- Loading state -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading questions...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !loading" class="error-container">
+      <ion-icon name="alert-circle-outline" size="large"></ion-icon>
+      <p>Unable to load questions. Please try again later.</p>
+      <ion-button (click)="loadQuestions()">Retry</ion-button>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && !error && questions.length === 0" class="empty-container">
+      <ion-icon name="chatbubble-ellipses-outline" size="large"></ion-icon>
+      <p>No unanswered questions at the moment.</p>
+    </div>
+
+    <!-- Questions grid -->
+    <ion-grid *ngIf="!loading && !error && questions.length > 0">
+      <ion-row>
+        <ion-col size-xs="12" size-sm="6" size-md="4" *ngFor="let question of questions">
+          <ion-card class="question-card" (click)="viewQuestion(question)">
+            <ion-card-header>
+              <ion-card-subtitle>{{ question.createdAt | date:'medium' }}</ion-card-subtitle>
+              <ion-card-title>{{ question.title }}</ion-card-title>
+            </ion-card-header>
+            <ion-card-content>
+              <div class="question-preview">
+                <p>{{ question.expertise ? 'Expertise: ' + question.expertise : 'General question' }}</p>
+              </div>
+              <div class="view-more">
+                <ion-button fill="clear" size="small">
+                  <ion-icon name="eye-outline" slot="start"></ion-icon>
+                  View Details
+                </ion-button>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+</ion-content>
+
+<!-- Question detail modal -->
+<ion-modal [isOpen]="showQuestion">
+  <ng-template>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Question Details</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="closeQuestion()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    
+    <ion-content *ngIf="selectedQuestion">
+      <div class="question-detail">
+        <h2>{{ selectedQuestion.title }}</h2>
+        <div class="client-info">
+          <p>Client is asking about: <strong>{{ selectedQuestion.expertise || 'General topic' }}</strong></p>
+        </div>
+        
+        <div class="question-content">
+          <h3>Question:</h3>
+          <p>{{ selectedQuestion.description }}</p>
+        </div>
+        
+        <div class="action-buttons">
+          <ion-button expand="block" (click)="acceptQuestion(selectedQuestion)" color="success">
+            <ion-icon name="checkmark-circle-outline" slot="start"></ion-icon>
+            Accept Question
+          </ion-button>
+        </div>
+      </div>
+    </ion-content>
+  </ng-template>
+</ion-modal>

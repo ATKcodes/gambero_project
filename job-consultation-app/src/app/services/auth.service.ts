@@ -10,6 +10,7 @@ export interface User {
   username: string;
   email: string;
   userType: string;
+  fullName?: string;
   token?: string;
   createdAt?: Date; // Added for compatibility with view-profile component
   profileImage?: string;
@@ -52,6 +53,7 @@ export class AuthService {
           username,
           email,
           userType,
+          fullName,
           token: response.token
         };
         
@@ -81,6 +83,7 @@ export class AuthService {
             username: response.user?.username || '',
             email: email,
             userType: response.user?.userType || '',
+            fullName: response.user?.fullName || '',
             token: response.token
           };
           
@@ -111,6 +114,7 @@ export class AuthService {
             username: response.userData?.username || '',
             email: response.userData?.email || '',
             userType: response.userData?.userType || 'client',
+            fullName: response.userData?.fullName || '',
             token: response.token,
             profileImage: response.userData?.profileImage
           };
@@ -220,6 +224,7 @@ export class AuthService {
               username: userResponse.username,
               email: userResponse.email,
               userType: userResponse.userType,
+              fullName: userResponse.fullName,
               token: currentUser?.token || '',
               createdAt: new Date(userResponse.createdAt || Date.now()),
               profileImage: userResponse.profileImage

@@ -38,6 +38,7 @@ export class ProfileComponent implements OnInit {
   
   // Seller specific data 
   credit = 0;
+  minimumPrice = 2; // Default minimum price is 2€
   areasOfExpertise: string[] = [];
   availableExpertiseAreas = ['Pastry', 'Meat and fishes', 'Vegetarian', 'Wines'];
   
@@ -62,7 +63,8 @@ export class ProfileComponent implements OnInit {
     
     this.username = this.user.username;
     this.email = this.user.email;
-    this.profileImage = this.user.profileImage || 'assets/default-profile.jpg';
+    this.profileImage = this.user.profileImage || 'assets/icons/tempura.png';
+    this.fullName = this.user.fullName || '';
     
     // Determine user type
     this.isSeller = this.user.userType === 'seller';
@@ -84,6 +86,7 @@ export class ProfileComponent implements OnInit {
         // Load seller specific data
         if (this.isSeller && userData.seller) {
           this.credit = userData.seller.credit || 0;
+          this.minimumPrice = userData.seller.minimumPrice || 2;
           this.areasOfExpertise = userData.seller.areasOfExpertise || [];
         }
       },
@@ -160,6 +163,7 @@ export class ProfileComponent implements OnInit {
       userData.creditCards = this.creditCards;
     } else if (this.isSeller) {
       userData.areasOfExpertise = this.areasOfExpertise;
+      userData.minimumPrice = this.minimumPrice || 2; // Ensure we have a minimum value
     }
     
     // Save to API

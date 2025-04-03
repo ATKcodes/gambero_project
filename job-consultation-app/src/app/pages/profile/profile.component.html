@@ -6,7 +6,7 @@
     <ion-title>Profile</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="toggleEditMode()">
-        <ion-icon slot="icon-only" [name]="isEditMode ? 'close-outline' : 'create-outline'"></ion-icon>
+        <img src="../../../assets/icons/edit_button.png" alt="Edit" style="width: 3rem; height: 3rem;" />
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -16,7 +16,7 @@
   <!-- Profile Image -->
   <div class="profile-header">
     <ion-avatar class="profile-avatar">
-      <img [src]="profileImage" alt="Profile" />
+      <img [src]="profileImage" alt="Profile" style="width: 5rem; height: 5rem; object-fit: cover;" />
     </ion-avatar>
     <h2>{{ username }}</h2>
     <p>{{ fullName }}</p>
@@ -88,6 +88,12 @@
           <ion-label>
             <h3>Credit Balance</h3>
             <p>{{ credit }} credits</p>
+          </ion-label>
+        </ion-item>
+        <ion-item lines="full">
+          <ion-label>
+            <h3>Minimum Price</h3>
+            <p>{{ minimumPrice || 2 }}€</p>
           </ion-label>
         </ion-item>
         <ion-item lines="none">
@@ -179,9 +185,16 @@
     <!-- Seller expertise edit -->
     <ion-card *ngIf="isSeller">
       <ion-card-header>
-        <ion-card-title>Areas of Expertise</ion-card-title>
+        <ion-card-title>Seller Settings</ion-card-title>
       </ion-card-header>
       <ion-card-content>
+        <ion-item>
+          <ion-label position="floating">Minimum Price (€)</ion-label>
+          <ion-input type="number" [(ngModel)]="minimumPrice" min="2"></ion-input>
+          <ion-note slot="helper">Minimum price for your services (default: 2€)</ion-note>
+        </ion-item>
+        
+        <h4 class="ion-padding-top">Areas of Expertise</h4>
         <ion-list>
           <ion-item *ngFor="let area of availableExpertiseAreas">
             <ion-label>{{ area }}</ion-label>

@@ -11,11 +11,19 @@ const SellerSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  minimumPrice: {
+    type: Number,
+    default: 2 // Default minimum price is 2€
+  },
   areasOfExpertise: [{
     type: String,
     enum: ['Pastry', 'Meat and fishes', 'Vegetarian', 'Wines'],
     required: true
   }],
+  isOnline: {
+    type: Boolean,
+    default: false
+  },
   messages: [{
     clientId: {
       type: mongoose.Schema.Types.ObjectId,

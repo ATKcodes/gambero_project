@@ -260,4 +260,14 @@ export class MarketComponent implements OnInit {
   toggleMessagesPopup() {
     this.isMessagesPopupOpen = !this.isMessagesPopupOpen;
   }
+
+  navigateToQuestions() {
+    if (this.isSeller) {
+      // For sellers, navigate to unanswered questions
+      this.router.navigate(['/questions']);
+    } else {
+      // For clients, navigate to experts page
+      this.router.navigate(['/experts']);
+    }
+  }
 } 
