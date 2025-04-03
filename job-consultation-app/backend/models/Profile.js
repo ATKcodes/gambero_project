@@ -10,8 +10,11 @@ const CertificateSchema = new mongoose.Schema({
     required: true
   },
   year: {
-    type: Number,
-    required: true
+    type: Number
+  },
+  date: {
+    type: Date,
+    default: Date.now
   }
 });
 
@@ -24,28 +27,42 @@ const ExperienceSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  startDate: {
+  description: {
+    type: String
+  },
+  from: {
     type: Date,
     required: true
   },
-  endDate: {
+  to: {
     type: Date
   },
-  description: {
-    type: String
+  current: {
+    type: Boolean,
+    default: false
+  },
+  startDate: {
+    type: Date
+  },
+  endDate: {
+    type: Date
   }
 });
 
 const PaymentMethodSchema = new mongoose.Schema({
   type: {
     type: String,
-    enum: ['credit_card', 'paypal'],
+    required: true,
+    enum: ['credit_card', 'paypal']
+  },
+  details: {
+    type: String,
     required: true
   },
-  lastFourDigits: {
+  cardType: {
     type: String
   },
-  cardType: {
+  lastFourDigits: {
     type: String
   }
 });
@@ -57,41 +74,37 @@ const ProfileSchema = new mongoose.Schema({
     required: true
   },
   name: {
+    type: String,
+    required: true
+  },
+  email: {
     type: String
+  },
+  role: {
+    type: String,
+    enum: ['buyer', 'seller'],
+    default: 'buyer'
   },
   bio: {
     type: String
   },
   profileImage: {
-    type: String
+    type: String,
+    default: 'https://via.placeholder.com/150'
   },
-  expertise: [String],
-  certificates: [{
-    name: String,
-    issuer: String,
-    date: Date
-  }],
-  experiences: [{
-    title: String,
-    company: String,
-    description: String,
-    from: Date,
-    to: Date,
-    current: Boolean
-  }],
-  paymentMethods: [{
-    type: {
-      type: String,
-      enum: ['paypal', 'creditcard', 'banktransfer']
-    },
-    details: {
-      type: String
-    }
-  }],
+  expertise: {
+    type: [String]
+  },
   minimumPrice: {
     type: Number,
     default: 0
   },
+  hourlyRate: {
+    type: Number
+  },
+  certificates: [CertificateSchema],
+  experiences: [ExperienceSchema],
+  paymentMethods: [PaymentMethodSchema],
   createdAt: {
     type: Date,
     default: Date.now

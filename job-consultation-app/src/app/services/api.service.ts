@@ -65,6 +65,20 @@ export class ApiService {
     );
   }
 
+  loginWith42Code(code: string): Observable<any> {
+    return this.http.post(`${this.apiUrl}/auth/ft/token`, {
+      code
+    }).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  get42LoginUrl(): Observable<any> {
+    return this.http.get(`${this.apiUrl}/auth/ft/login`).pipe(
+      catchError(this.handleError)
+    );
+  }
+
   getCurrentUser(): Observable<any> {
     return this.http.get(`${this.apiUrl}/auth/user`, {
       headers: this.getHeaders()

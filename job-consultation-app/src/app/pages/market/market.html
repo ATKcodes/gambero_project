@@ -1,0 +1,109 @@
+<ion-header>
+	<ion-toolbar color="primary">
+	  <ion-buttons slot="start">
+		<ion-back-button defaultHref="/main"></ion-back-button>
+	  </ion-buttons>
+	  <ion-title>{{ isSeller ? 'Available Jobs' : 'Find an Expert' }}</ion-title>
+	</ion-toolbar>
+  </ion-header>
+  
+  <ion-content class="ion-padding">
+	<div class="market-container">
+	  <!-- Header with logo and profile -->
+	  <div class="header-container">
+		<div class="logo-section">
+		  <div class="logo">JC</div>
+		  <div class="app-name">Job Consultation</div>
+		</div>
+		
+		<div class="profile-section" *ngIf="user">
+		  <div class="profile-image" (click)="router.navigate(['/profile'])">
+			<img [src]="user.profileImage || 'assets/default-profile.jpg'" alt="Profile" />
+		  </div>
+		</div>
+	  </div>
+	  
+	  <!-- For buyers: show active sellers -->
+	  <ng-container *ngIf="!isSeller">
+		<ion-grid>
+		  <ion-row>
+			<ion-col size="12">
+			  <ion-text color="primary">
+				<h2>Who should help you?</h2>
+			  </ion-text>
+			</ion-col>
+		  </ion-row>
+		  
+		  <ion-row>
+			<ion-col size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let seller of sellers">
+			  <ion-card (click)="viewProfile(seller.userId)">
+				<ion-card-header>
+				  <ion-card-subtitle>{{ seller.expertise }}</ion-card-subtitle>
+				  <ion-card-title>{{ seller.name }}</ion-card-title>
+				</ion-card-header>
+				<ion-card-content>
+				  <ion-img [src]="seller.profileImage" class="seller-img"></ion-img>
+				  <p class="seller-bio">{{ seller.bio }}</p>
+				  <ion-chip color="secondary">
+					<ion-label>{{ seller.minimumPrice }}€</ion-label>
+				  </ion-chip>
+				  <ion-button expand="block" fill="outline" (click)="viewProfile(seller.userId); $event.stopPropagation()">
+					View Profile
+				  </ion-button>
+				</ion-card-content>
+			  </ion-card>
+			</ion-col>
+		  </ion-row>
+		</ion-grid>
+		
+		<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+		  <ion-fab-button (click)="createJob()">
+			<ion-icon name="add"></ion-icon>
+		  </ion-fab-button>
+		</ion-fab>
+	  </ng-container>
+	  
+	  <!-- For sellers: show available jobs in Twitter-like style -->
+	  <ng-container *ngIf="isSeller">
+		<ion-text color="primary" class="section-title">
+		  <h2>Available Jobs</h2>
+		</ion-text>
+		
+		<div class="twitter-style-messages">
+		  <div class="message-card" *ngFor="let job of jobs" (click)="viewJob(job)">
+			<div class="message-header">
+			  <div class="sender-info">
+				<div class="sender-avatar">
+				  <ion-icon name="person-circle-outline"></ion-icon>
+				</div>
+				<div class="sender-name">
+				  <strong>{{ job.title }}</strong>
+				  <span class="message-date">{{ job.createdAt | date:'short' }}</span>
+				</div>
+			  </div>
+			  <div class="message-status">
+				<ion-badge [color]="getStatusColor(job.status)">{{ job.status }}</ion-badge>
+			  </div>
+			</div>
+			
+			<div class="message-content">
+			  <p>{{ job.description }}</p>
+			  <p *ngIf="job.expertise" class="expertise-tag">Expertise: {{ job.expertise }}</p>
+			</div>
+			
+			<div class="message-actions">
+			  <ion-button fill="clear" size="small" (click)="viewJob(job); $event.stopPropagation()">
+				<ion-icon name="eye-outline"></ion-icon>
+				View Details
+			  </ion-button>
+			</div>
+		  </div>
+		  
+		  <div class="empty-state" *ngIf="jobs.length === 0">
+			<ion-icon name="search-outline" size="large"></ion-icon>
+			<p>No jobs available matching your expertise</p>
+		  </div>
+		</div>
+	  </ng-container>
+	</div>
+  </ion-content>

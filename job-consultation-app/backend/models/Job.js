@@ -23,8 +23,7 @@ const JobSchema = new mongoose.Schema({
     required: true
   },
   expertise: {
-    type: [String],
-    required: true
+    type: String
   },
   status: {
     type: String,
@@ -35,11 +34,10 @@ const JobSchema = new mongoose.Schema({
     type: Date,
     default: Date.now
   },
-  completedAt: {
-    type: Date
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
-}, {
-  timestamps: true
 });
 
 // Update the updatedAt field on save
