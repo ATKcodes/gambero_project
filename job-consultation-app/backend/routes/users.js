@@ -3,6 +3,8 @@ const router = express.Router();
 const auth = require('../middleware/auth');
 const User = require('../models/User');
 const Profile = require('../models/Profile');
+const Client = require('../models/Client');
+const Seller = require('../models/Seller');
 
 // @route   GET api/users/profile
 // @desc    Get current user's profile
@@ -110,6 +112,108 @@ router.get('/sellers', auth, async (req, res) => {
     res.json(profiles);
   } catch (err) {
     console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// @route   GET api/users/:id
+// @desc    Get user by ID with client/seller info
+// @access  Private
+router.get('/:id', auth, async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    // Get the user
+    const user = await User.findById(userId).select('-password');
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    let userData = user.toObject();
+    
+    // If user is client, add client data
+    if (user.userType === 'client') {
+      const client = await Client.findOne({ user: userId });
+      if (client) {
+        userData.client = client;
+      }
+    }
+    
+    // If user is seller, add seller data
+    if (user.userType === 'seller') {
+      const seller = await Seller.findOne({ user: userId });
+      if (seller) {
+        userData.seller = seller;
+      }
+    }
+    
+    res.json(userData);
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === 'ObjectId') {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    res.status(500).send('Server error');
+  }
+});
+
+// @route   PUT api/users/profile
+// @desc    Update user profile
+// @access  Private
+router.put('/profile', auth, async (req, res) => {
+  const {
+    username,
+    fullName,
+    password,
+    profileImage,
+    creditCards,
+    areasOfExpertise
+  } = req.body;
+  
+  try {
+    // Update user
+    const user = await User.findById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found' });
+    }
+    
+    // Update basic user info
+    if (username) user.username = username;
+    if (fullName) user.fullName = fullName;
+    if (profileImage) user.profileImage = profileImage;
+    if (password) {
+      // Password will be hashed by pre-save hook
+      user.password = password;
+    }
+    
+    await user.save();
+    
+    // Update client/seller specific info
+    if (user.userType === 'client' && creditCards) {
+      let client = await Client.findOne({ user: req.user.id });
+      
+      if (client) {
+        client.creditCards = creditCards;
+        await client.save();
+      }
+    }
+    
+    if (user.userType === 'seller' && areasOfExpertise) {
+      let seller = await Seller.findOne({ user: req.user.id });
+      
+      if (seller) {
+        seller.areasOfExpertise = areasOfExpertise;
+        await seller.save();
+      }
+    }
+    
+    // Return updated user
+    const updatedUser = await User.findById(req.user.id).select('-password');
+    res.json(updatedUser);
+  } catch (err) {
+    console.error('Error updating profile:', err.message);
     res.status(500).send('Server error');
   }
 });

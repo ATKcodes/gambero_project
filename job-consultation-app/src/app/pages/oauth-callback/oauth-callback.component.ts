@@ -80,15 +80,21 @@ export class OAuthCallbackComponent implements OnInit {
       // Exchange code for token
       this.authService.loginWith42(code).subscribe({
         next: (user) => {
-          console.log('Login successful, user type:', user.userType);
-          this.message = 'Login successful!';
-          
-          if (user.userType === 'pending') {
-            console.log('User needs to complete profile, redirecting...');
-            setTimeout(() => this.router.navigate(['/complete-profile']), 1000);
+          if (user) {
+            console.log('Login successful, user type:', user.userType);
+            this.message = 'Login successful!';
+            
+            if (user.userType === 'pending') {
+              console.log('User needs to complete profile, redirecting...');
+              setTimeout(() => this.router.navigate(['/complete-profile']), 1000);
+            } else {
+              console.log('User already has complete profile, redirecting to market...');
+              setTimeout(() => this.router.navigate(['/market']), 1000);
+            }
           } else {
-            console.log('User already has complete profile, redirecting to market...');
-            setTimeout(() => this.router.navigate(['/market']), 1000);
+            console.error('Failed to get user data after code exchange');
+            this.message = 'Login failed. Please try again.';
+            setTimeout(() => this.router.navigate(['/login']), 2000);
           }
         },
         error: (err) => {

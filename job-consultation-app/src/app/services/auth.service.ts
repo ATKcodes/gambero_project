@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, tap, catchError, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
+import { Platform } from '@ionic/angular';
 
 export interface User {
   id: string;
@@ -23,7 +24,8 @@ export class AuthService {
 
   constructor(
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private platform: Platform
   ) {
     // Try to get user from localStorage
     const storedUser = localStorage.getItem('user');
@@ -100,7 +102,7 @@ export class AuthService {
     );
   }
 
-  loginWith42(code: string): Observable<User> {
+  loginWith42(code: string): Observable<User | null> {
     return this.apiService.loginWith42Code(code).pipe(
       map(response => {
         if (response && response.token) {
@@ -124,22 +126,42 @@ export class AuthService {
           
           return user;
         }
-        throw new Error('Invalid 42 login response');
+        // Handle case when response doesn't contain a token
+        console.error('Invalid 42 login response - no token found');
+        return null;
       }),
       catchError(error => {
-        throw error;
+        console.error('Error during 42 login:', error);
+        return of(null);
       })
     );
   }
 
-  get42LoginUrl(): Observable<string> {
-    return this.apiService.get42LoginUrl().pipe(
-      map(response => response.url),
+  get42LoginUrl(): Observable<string | null> {
+    console.log('Getting 42 OAuth URL');
+    
+    // Check if we're running on a mobile device
+    const isMobile = this.isPlatformMobile();
+    
+    return this.apiService.get42LoginUrl(isMobile).pipe(
+      map(response => {
+        if (response && response.url) {
+          console.log('Received 42 OAuth URL:', response.url);
+          return response.url;
+        }
+        return null;
+      }),
       catchError(error => {
-        console.error('Error getting 42 login URL:', error);
-        return of('');
+        console.error('Error getting 42 OAuth URL:', error);
+        return of(null);
       })
     );
+  }
+
+  // Check if we're running on a mobile platform
+  private isPlatformMobile(): boolean {
+    // Simple check - if we're in a Capacitor container, we're on mobile
+    return typeof (window as any).Capacitor !== 'undefined';
   }
 
   logout(): void {

@@ -3,6 +3,8 @@ import { IonApp, IonRouterOutlet } from '@ionic/angular/standalone';
 import { CommonModule } from '@angular/common';
 import { Platform } from '@ionic/angular';
 import { environment } from '../environments/environment';
+import { Router } from '@angular/router';
+import { App, URLOpenListenerEvent } from '@capacitor/app';
 
 @Component({
   selector: 'app-root',
@@ -12,11 +14,15 @@ import { environment } from '../environments/environment';
   styleUrls: ['app.component.scss']
 })
 export class AppComponent implements OnInit {
-  constructor(private platform: Platform) {}
+  constructor(
+    private platform: Platform,
+    private router: Router
+  ) {
+    this.initializeApp();
+  }
   
   ngOnInit() {
     console.log('App component initialized');
-    this.initializeApp();
   }
 
   initializeApp() {
@@ -33,6 +39,30 @@ export class AppComponent implements OnInit {
       console.log('API URL:', environment.apiUrl);
       
       // You might want to handle different platform initializations here
+      
+      // Setup deep link handling
+      App.addListener('appUrlOpen', (event: URLOpenListenerEvent) => {
+        console.log('App opened with URL:', event.url);
+        this.handleOpenUrl(event.url);
+      });
     });
+  }
+
+  private handleOpenUrl(url: string) {
+    // Check if this is our OAuth callback URL
+    if (url.includes('oauth-callback')) {
+      // Parse the URL to extract the code parameter
+      const urlObj = new URL(url);
+      const code = urlObj.searchParams.get('code');
+      
+      if (code) {
+        console.log('OAuth code received via deep link:', code);
+        // Navigate to the OAuth callback route with the code
+        this.router.navigate(['/oauth-callback'], { queryParams: { code } });
+      } else {
+        console.error('No code found in OAuth callback URL');
+        this.router.navigate(['/login']);
+      }
+    }
   }
 }

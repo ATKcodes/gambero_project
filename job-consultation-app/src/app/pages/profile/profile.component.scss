@@ -4,11 +4,19 @@
   padding: 16px;
 }
 
+.profile-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 20px 0;
+}
+
 .profile-avatar {
   width: 120px;
   height: 120px;
-  margin: 0 auto 16px;
-  border: 4px solid var(--ion-color-primary);
+  margin-bottom: 15px;
+  border: 4px solid var(--ion-color-light);
 }
 
 h2 {
@@ -18,12 +26,13 @@ h2 {
 }
 
 ion-card {
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 ion-card-header {
-  background-color: var(--ion-color-primary);
+  background-color: var(--ion-color-light);
 }
 
 ion-card-title {
@@ -35,6 +44,25 @@ ion-card-title {
   margin-top: 16px;
   padding-top: 16px;
   border-top: 1px solid var(--ion-color-light);
+}
+
+.password-section, 
+.add-card-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ion-color-light);
+}
+
+.password-section h4,
+.add-card-section h4 {
+  margin-bottom: 16px;
+  font-size: 16px;
+  color: var(--ion-color-medium);
+}
+
+ion-button[color="success"] {
+  margin-top: 24px;
+  margin-bottom: 32px;
 }
 
 ion-button[expand="block"] {
@@ -53,4 +81,13 @@ ion-textarea {
 /* Custom styles for the date picker */
 ion-datetime-button {
   margin-top: 8px;
+}
+
+ion-chip {
+  margin-right: 8px;
+}
+
+ion-badge {
+  font-size: 14px;
+  padding: 4px 8px;
 } 

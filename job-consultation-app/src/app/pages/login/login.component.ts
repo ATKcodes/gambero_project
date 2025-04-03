@@ -182,11 +182,20 @@ export class LoginComponent implements OnInit {
     
     // Get the 42 OAuth URL and redirect the user
     this.authService.get42LoginUrl().subscribe({
-      next: (url) => {
+      next: (url: string | null) => {
         if (url) {
           // Redirect to 42 OAuth page
           console.log('Redirecting to 42 OAuth:', url);
-          window.location.href = url;
+          
+          // If the URL contains our custom scheme, it's designed for the app
+          // Otherwise, it's for the browser
+          if (url.startsWith('com.jobconsultation.app://')) {
+            // For in-app handling with Capacitor
+            window.open(url, '_self');
+          } else {
+            // For browser handling
+            window.location.href = url;
+          }
         } else {
           console.error('Failed to get 42 OAuth URL');
           this.showToast('Failed to get 42 OAuth URL');
