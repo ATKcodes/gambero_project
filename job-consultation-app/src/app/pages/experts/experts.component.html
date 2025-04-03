@@ -1,0 +1,69 @@
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/market"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Available Experts</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="experts-container">
+    <!-- Loading state -->
+    <div *ngIf="loading" class="loading-container">
+      <ion-spinner name="crescent"></ion-spinner>
+      <p>Loading experts...</p>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error && !loading" class="error-container">
+      <ion-icon name="alert-circle-outline" size="large"></ion-icon>
+      <p>Unable to load experts. Please try again later.</p>
+      <ion-button (click)="loadExperts()">Retry</ion-button>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!loading && !error && experts.length === 0" class="empty-container">
+      <ion-icon name="search-outline" size="large"></ion-icon>
+      <p>No experts are available at the moment.</p>
+    </div>
+
+    <!-- Experts grid -->
+    <ion-grid *ngIf="!loading && !error && experts.length > 0">
+      <ion-row>
+        <ion-col size-xs="12" size-sm="6" size-md="4" size-lg="3" *ngFor="let expert of experts">
+          <ion-card class="expert-card">
+            <div class="card-header">
+              <ion-img [src]="expert.profileImage || 'assets/icons/tempura.png'" class="expert-img"></ion-img>
+              <div class="expert-status" [class.online]="expert.isOnline"></div>
+              <div class="expert-info">
+                <ion-card-title>{{ expert.name }}</ion-card-title>
+                <ion-chip *ngFor="let area of expert.expertise" color="secondary" class="expertise-chip">
+                  <ion-label>{{ area }}</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+            <ion-card-content>
+              <p class="expert-bio">{{ expert.bio || 'No bio available' }}</p>
+              <div class="expert-details">
+                <div class="price-badge">
+                  <ion-badge color="warning">{{ expert.minimumPrice || 2 }}€ minimum</ion-badge>
+                </div>
+                <div class="action-buttons">
+                  <ion-button fill="clear" (click)="viewProfile(expert.userId)">
+                    <ion-icon name="eye-outline" slot="start"></ion-icon>
+                    Profile
+                  </ion-button>
+                  <ion-button fill="solid" color="primary" (click)="createJob(expert.userId)">
+                    <ion-icon name="chatbubble-outline" slot="start"></ion-icon>
+                    Ask
+                  </ion-button>
+                </div>
+              </div>
+            </ion-card-content>
+          </ion-card>
+        </ion-col>
+      </ion-row>
+    </ion-grid>
+  </div>
+</ion-content>

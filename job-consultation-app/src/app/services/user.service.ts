@@ -42,6 +42,7 @@ export interface UserProfile {
   expertise?: string[];
   hourlyRate?: number;
   minimumPrice?: number;
+  isOnline?: boolean;
   description?: string;
   certificates?: Certificate[];
   experiences?: Experience[];
@@ -115,6 +116,7 @@ export class UserService {
       expertise: data.expertise,
       hourlyRate: data.hourlyRate,
       minimumPrice: data.minimumPrice,
+      isOnline: data.isOnline || false,
       description: data.description,
       certificates: data.certificates?.map((cert: any) => ({
         id: cert.id,

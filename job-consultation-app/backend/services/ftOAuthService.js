@@ -150,7 +150,7 @@ class FtOAuthService {
           password: Math.random().toString(36).slice(-10) + Math.random().toString(36).slice(-10),
           userType: 'pending', // Set as pending to force profile completion
           fortytwoId: userData.id.toString(),
-          profileImage: userData.image_url,
+          profileImage: userData.image_url || 'assets/icons/tempura.png',
           profileCompleted: false,
           isNewUser: true
         });

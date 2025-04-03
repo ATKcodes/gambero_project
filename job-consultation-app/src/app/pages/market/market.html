@@ -3,13 +3,20 @@
 	  <ion-buttons slot="start">
 		<ion-back-button defaultHref="/main"></ion-back-button>
 	  </ion-buttons>
-	  <ion-title>{{ isSeller ? 'Available Jobs' : 'Find an Expert' }}</ion-title>
+	  <ion-title>Home</ion-title>
+	  <ion-buttons slot="end">
+		<ion-button (click)="router.navigate(['/profile'])">
+		  <ion-avatar class="header-profile-image">
+			<img [src]="user?.profileImage || 'assets/icons/tempura.png'" alt="Profile" />
+		  </ion-avatar>
+		</ion-button>
+	  </ion-buttons>
 	</ion-toolbar>
   </ion-header>
   
-  <ion-content class="ion-padding">
+  <ion-content>
 	<div class="market-container">
-	  <!-- Logo section from login page -->
+	  <!-- Centered and enlarged JC logo -->
 	  <div class="logo-section">
 		<div class="logo">
 		  <h1>JC</h1>
@@ -17,11 +24,11 @@
 		</div>
 	  </div>
 	  
-	  <!-- Profile section -->
-	  <div class="profile-section" *ngIf="user">
-		<div class="profile-image" (click)="router.navigate(['/profile'])">
-		  <img [src]="user.profileImage || 'assets/default-profile.jpg'" alt="Profile" />
-		</div>
+	  <!-- Navigation button -->
+	  <div class="nav-btn-container">
+		<ion-button class="navigation-button" (click)="navigateToQuestions()">
+		  {{ isSeller ? 'View Unanswered Questions' : 'Browse Available Experts' }}
+		</ion-button>
 	  </div>
 	  
 	  <!-- For buyers: show active sellers -->

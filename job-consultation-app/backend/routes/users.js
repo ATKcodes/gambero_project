@@ -168,7 +168,9 @@ router.put('/profile', auth, async (req, res) => {
     password,
     profileImage,
     creditCards,
-    areasOfExpertise
+    areasOfExpertise,
+    minimumPrice,
+    isOnline
   } = req.body;
   
   try {
@@ -198,22 +200,29 @@ router.put('/profile', auth, async (req, res) => {
         client.creditCards = creditCards;
         await client.save();
       }
-    }
-    
-    if (user.userType === 'seller' && areasOfExpertise) {
+    } else if (user.userType === 'seller') {
       let seller = await Seller.findOne({ user: req.user.id });
       
       if (seller) {
-        seller.areasOfExpertise = areasOfExpertise;
+        if (areasOfExpertise) {
+          seller.areasOfExpertise = areasOfExpertise;
+        }
+        
+        if (minimumPrice !== undefined) {
+          seller.minimumPrice = minimumPrice;
+        }
+        
+        if (isOnline !== undefined) {
+          seller.isOnline = isOnline;
+        }
+        
         await seller.save();
       }
     }
     
-    // Return updated user
-    const updatedUser = await User.findById(req.user.id).select('-password');
-    res.json(updatedUser);
+    res.json({ msg: 'Profile updated' });
   } catch (err) {
-    console.error('Error updating profile:', err.message);
+    console.error(err.message);
     res.status(500).send('Server error');
   }
 });

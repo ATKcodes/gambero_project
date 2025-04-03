@@ -1,0 +1,132 @@
+.experts-container {
+  padding: 16px;
+  background-color: #f5f5f5;
+  min-height: 100%;
+}
+
+// Loading, error, and empty states
+.loading-container,
+.error-container,
+.empty-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 40px 20px;
+  color: #666;
+  
+  ion-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    color: var(--ion-color-medium);
+  }
+  
+  p {
+    margin-bottom: 16px;
+    font-size: 16px;
+  }
+}
+
+// Expert cards
+.expert-card {
+  margin-bottom: 16px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-header {
+    position: relative;
+    display: flex;
+    padding: 16px;
+  }
+  
+  .expert-img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .expert-status {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background-color: #ccc;
+    border: 2px solid white;
+    bottom: 16px;
+    left: 60px;
+    
+    &.online {
+      background-color: #4caf50;
+    }
+  }
+  
+  .expert-info {
+    margin-left: 16px;
+    flex: 1;
+    
+    ion-card-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+  }
+  
+  .expertise-chip {
+    margin-right: 4px;
+    margin-bottom: 4px;
+    font-size: 12px;
+    height: 24px;
+  }
+  
+  .expert-bio {
+    color: #666;
+    margin-bottom: 16px;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    overflow: hidden;
+    line-height: 1.4;
+  }
+  
+  .expert-details {
+    display: flex;
+    flex-direction: column;
+    
+    .price-badge {
+      margin-bottom: 12px;
+      
+      ion-badge {
+        font-size: 14px;
+        padding: 6px 10px;
+      }
+    }
+    
+    .action-buttons {
+      display: flex;
+      justify-content: space-between;
+    }
+  }
+}
+
+// Make the grid responsive
+@media (max-width: 576px) {
+  .experts-container {
+    padding: 8px;
+  }
+  
+  ion-grid {
+    padding: 0;
+  }
+}

@@ -12,13 +12,27 @@
 @import '@ionic/angular/css/ionic.bundle.css';
 
 body {
-  background-color: #f4f5f8;
+  background-color: #FFEBC3;
 }
 
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
+}
+
+/* Apply background color to all ion-content elements */
+ion-content {
+  --background: #FFEBC3;
+}
+
+/* Change ion-button colors for secondary buttons */
+ion-button[color="secondary"] {
+  --ion-color-secondary: #FF7532;
+  --ion-color-secondary-rgb: 255, 117, 50;
+  --ion-color-secondary-contrast: #000000;
+  --ion-color-secondary-shade: #e0662c;
+  --ion-color-secondary-tint: #ff8347;
 }
 
 :root {
@@ -29,12 +43,12 @@ html, body {
   --ion-color-primary-shade: #e09100;
   --ion-color-primary-tint: #ffae1a;
 
-  --ion-color-secondary: #FF6347;
-  --ion-color-secondary-rgb: 255, 99, 71;
+  --ion-color-secondary: #FF7532;
+  --ion-color-secondary-rgb: 255, 117, 50;
   --ion-color-secondary-contrast: #000000;
   --ion-color-secondary-contrast-rgb: 0, 0, 0;
-  --ion-color-secondary-shade: #e0573e;
-  --ion-color-secondary-tint: #ff7359;
+  --ion-color-secondary-shade: #e0662c;
+  --ion-color-secondary-tint: #ff8347;
 
   --ion-color-tertiary: #FFFF00;
   --ion-color-tertiary-rgb: 255, 255, 0;

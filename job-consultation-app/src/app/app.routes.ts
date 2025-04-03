@@ -37,6 +37,16 @@ export const routes: Routes = [
     canActivate: [AuthGuard, MarketGuard]
   },
   {
+    path: 'experts',
+    loadComponent: () => import('./pages/experts/experts.component').then(m => m.ExpertsComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'questions',
+    loadComponent: () => import('./pages/questions/questions.component').then(m => m.QuestionsComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'view-profile/:id',
     loadComponent: () => import('./pages/view-profile/view-profile.component').then(m => m.ViewProfileComponent),
     canActivate: [AuthGuard]

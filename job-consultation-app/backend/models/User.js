@@ -22,7 +22,7 @@ const UserSchema = new mongoose.Schema({
   },
   profileImage: {
     type: String,
-    default: 'default-profile.jpg'
+    default: 'assets/icons/tempura.png'
   },
   userType: {
     type: String,
