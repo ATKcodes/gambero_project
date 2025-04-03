@@ -154,13 +154,10 @@ export class ApiService {
     );
   }
 
-  get42LoginUrl(): Observable<any> {
-    console.log(`Trying to get 42 login URL...`);
-    
+  get42LoginUrl(isMobile = false): Observable<{ url: string }> {
+    console.log('Requesting 42 OAuth URL (mobile:', isMobile, ')');
     return this.callWithFallback(url => 
-      this.http.get(`${url}/auth/ft/login`).pipe(
-        tap(response => console.log('42 login URL response:', response))
-      )
+      this.http.get<{ url: string }>(`${url}/auth/ft/login${isMobile ? '?mobile=true' : ''}`)
     );
   }
 

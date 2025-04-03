@@ -138,13 +138,18 @@ export class MarketComponent implements OnInit {
         console.log('Market component detected OAuth code in URL, exchanging for token');
         this.authService.loginWith42(code).subscribe({
           next: (user) => {
-            console.log('OAuth code exchanged for token successfully, user type:', user.userType);
-            if (user.userType === 'pending') {
-              console.log('User type is pending, redirecting to profile completion');
-              this.router.navigate(['/complete-profile']);
+            if (user) {
+              console.log('OAuth code exchanged for token successfully, user type:', user.userType);
+              if (user.userType === 'pending') {
+                console.log('User type is pending, redirecting to profile completion');
+                this.router.navigate(['/complete-profile']);
+              } else {
+                // Refresh the page to remove the code from URL
+                window.location.href = '/market';
+              }
             } else {
-              // Refresh the page to remove the code from URL
-              window.location.href = '/market';
+              console.error('User data not returned after OAuth code exchange');
+              this.router.navigate(['/login']);
             }
           },
           error: (err) => {

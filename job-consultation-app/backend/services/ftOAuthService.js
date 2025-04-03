@@ -14,19 +14,30 @@ class FtOAuthService {
   }
 
   /**
-   * Get the authorization URL for 42 OAuth
+   * Get the URL for 42 OAuth login
+   * @param {boolean} isMobile Whether the request is coming from mobile app
    * @returns {string} The authorization URL
    */
-  getAuthorizationUrl() {
-    const authUrl = `https://api.intra.42.fr/oauth/authorize?` +
-      `client_id=${encodeURIComponent(this.clientId)}&` +
-      `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
-      `response_type=code&` + 
-      `scope=public`;
+  getAuthorizationUrl(isMobile = false) {
+    console.log('Generating 42 OAuth URL');
     
-    console.log('Generated authorization URL with client ID:', this.clientId.substring(0, 10) + '...');
-    console.log('Redirect URI:', this.redirectUri);
+    // For mobile, use the custom URL scheme
+    const redirectUri = isMobile ? 
+      'com.jobconsultation.app://oauth-callback' : 
+      this.redirectUri;
     
+    // OAuth state to verify the request when it returns
+    const state = Math.random().toString(36).substring(2, 15);
+    
+    // Generate the authorization URL
+    const authUrl = 'https://api.intra.42.fr/oauth/authorize' +
+      `?client_id=${this.clientId}` +
+      '&response_type=code' +
+      `&redirect_uri=${encodeURIComponent(redirectUri)}` +
+      `&state=${state}` +
+      '&scope=public';
+      
+    console.log('Generated auth URL with redirectUri:', redirectUri);
     return authUrl;
   }
 

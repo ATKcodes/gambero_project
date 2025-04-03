@@ -147,7 +147,8 @@ router.get('/user', auth, async (req, res) => {
 // @desc    Redirect to 42 OAuth page
 // @access  Public
 router.get('/ft/login', (req, res) => {
-  const authUrl = ftOAuthService.getAuthorizationUrl();
+  const isMobile = req.query.mobile === 'true';
+  const authUrl = ftOAuthService.getAuthorizationUrl(isMobile);
   res.json({ url: authUrl });
 });
 
