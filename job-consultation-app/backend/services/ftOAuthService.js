@@ -18,7 +18,16 @@ class FtOAuthService {
    * @returns {string} The authorization URL
    */
   getAuthorizationUrl() {
-    return `https://api.intra.42.fr/oauth/authorize?client_id=${this.clientId}&redirect_uri=${encodeURIComponent(this.redirectUri)}&response_type=code&scope=public`;
+    const authUrl = `https://api.intra.42.fr/oauth/authorize?` +
+      `client_id=${encodeURIComponent(this.clientId)}&` +
+      `redirect_uri=${encodeURIComponent(this.redirectUri)}&` +
+      `response_type=code&` + 
+      `scope=public`;
+    
+    console.log('Generated authorization URL with client ID:', this.clientId.substring(0, 10) + '...');
+    console.log('Redirect URI:', this.redirectUri);
+    
+    return authUrl;
   }
 
   /**
@@ -30,32 +39,51 @@ class FtOAuthService {
     try {
       console.log('Exchanging code for access token...');
       console.log('Using redirect URI:', this.redirectUri);
+      console.log('Client ID available:', !!this.clientId);
+      console.log('Client Secret available:', !!this.clientSecret);
       
-      const requestData = {
-        grant_type: 'authorization_code',
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        code,
-        redirect_uri: this.redirectUri
-      };
+      if (!this.clientId || !this.clientSecret) {
+        console.error('ERROR: Missing OAuth credentials - check environment variables:');
+        console.error('FORTYTWO_CLIENT_ID:', this.clientId ? 'Set' : 'Missing');
+        console.error('FORTYTWO_CLIENT_SECRET:', this.clientSecret ? 'Set' : 'Missing');
+        throw new Error('OAuth credentials not configured. Check server environment variables.');
+      }
+      
+      const params = new URLSearchParams();
+      params.append('grant_type', 'authorization_code');
+      params.append('client_id', this.clientId);
+      params.append('client_secret', this.clientSecret);
+      params.append('code', code);
+      params.append('redirect_uri', this.redirectUri);
       
       console.log('Token request data:', {
-        ...requestData,
-        client_id: requestData.client_id.substring(0, 10) + '...',
-        client_secret: '***redacted***'
+        grant_type: 'authorization_code',
+        client_id: this.clientId.substring(0, 10) + '...',
+        client_secret: '***redacted***',
+        code: code.substring(0, 10) + '...',
+        redirect_uri: this.redirectUri
       });
       
-      const response = await axios.post(this.tokenUrl, requestData);
+      // Follow 42 API OAuth specification exactly
+      const response = await axios({
+        method: 'post',
+        url: this.tokenUrl,
+        data: params,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Accept': 'application/json'
+        }
+      });
 
-      console.log('Token received successfully');
+      console.log('Token received successfully', response.data);
       return response.data.access_token;
     } catch (error) {
       console.error('Error getting access token:');
       
       if (error.response) {
         console.error('Response status:', error.response.status);
-        console.error('Response data:', error.response.data);
-        console.error('Response headers:', error.response.headers);
+        console.error('Response data:', JSON.stringify(error.response.data, null, 2));
+        console.error('Response headers:', JSON.stringify(error.response.headers, null, 2));
         throw new Error(`Failed to get access token: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
       } else if (error.request) {
         console.error('No response received:', error.request);
