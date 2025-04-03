@@ -1,16 +1,19 @@
 export const environment = {
   production: true,
   
-  // For emulator testing
-  apiUrl: 'http://10.0.2.2:3000/api',
+  // CHOOSE THE APPROPRIATE API URL BASED ON YOUR SETUP
+  // Uncomment one of these options and comment out the others
   
-  // For real device testing (replace with your actual server IP)
-  // apiUrl: 'http://192.168.1.X:3000/api',
+  // 1. Host machine IP address (BEST OPTION FOR REAL DEVICE TESTING)
+  apiUrl: 'http://172.27.98.140:3000/api',
   
-  // For production web deployment
+  // 2. Android emulator special address (for emulator only)
+  // apiUrl: 'http://10.0.2.2:3000/api',
+  
+  // 3. Localhost (for web testing only)
   // apiUrl: '/api',
   
-  // Debug settings - turn off in production
-  logRequests: false,
-  logResponses: false
+  // Debug settings - can be enabled even in production for troubleshooting
+  logRequests: true, 
+  logResponses: true
 }; 

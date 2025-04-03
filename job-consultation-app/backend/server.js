@@ -3,12 +3,28 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const path = require('path');
+const os = require('os');
 
 // Load environment variables
 dotenv.config();
 
 // Initialize express
 const app = express();
+
+// Get local IP addresses for debugging
+const getLocalIps = () => {
+  const interfaces = os.networkInterfaces();
+  const addresses = [];
+  for (const k in interfaces) {
+    for (const k2 in interfaces[k]) {
+      const address = interfaces[k][k2];
+      if (address.family === 'IPv4' && !address.internal) {
+        addresses.push(`${k}: ${address.address}`);
+      }
+    }
+  }
+  return addresses;
+};
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {})
@@ -23,41 +39,29 @@ mongoose.connect(process.env.MONGO_URI, {})
 // Middleware
 app.use(express.json());
 
-// Enhanced CORS configuration for mobile and development
+// Enhanced CORS configuration - ALLOW ALL ORIGINS FOR TESTING
 app.use(cors({
-  origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    
-    // Allow all localhost and development origins
-    const allowedOrigins = [
-      'http://localhost',
-      'http://localhost:8100',
-      'http://localhost:4200', 
-      'capacitor://localhost',
-      'http://localhost:3000',
-      'ionic://localhost'
-    ];
-    
-    // Check if the origin starts with any of the allowed origins
-    const isAllowed = allowedOrigins.some(allowedOrigin => 
-      origin.startsWith(allowedOrigin)
-    );
-    
-    if (isAllowed) {
-      callback(null, true);
-    } else {
-      console.log('CORS blocked request from:', origin);
-      callback(null, true); // Allow anyway for now, but log it
-    }
-  },
-  credentials: true
+  origin: '*',  // Allow all origins for testing
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token']
 }));
 
 // Log requests for debugging
 app.use((req, res, next) => {
-  console.log(`${req.method} ${req.originalUrl} - ${new Date().toISOString()}`);
+  console.log(`${req.method} ${req.originalUrl} - ${new Date().toISOString()} - Origin: ${req.headers.origin || 'Unknown'}`);
   next();
+});
+
+// Add a test endpoint
+app.get('/api/test', (req, res) => {
+  res.json({ 
+    message: 'Backend server is running correctly',
+    time: new Date().toISOString(),
+    headers: req.headers,
+    clientIp: req.ip,
+    serverIps: getLocalIps()
+  });
 });
 
 // Routes
@@ -78,12 +82,19 @@ if (process.env.NODE_ENV === 'production') {
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).send('Server Error');
+  console.error('Server error:', err.stack);
+  res.status(500).send({ error: 'Server Error', message: err.message });
 });
 
 // Define PORT
 const PORT = process.env.PORT || 3000;
 
-// Start server
-app.listen(PORT, '0.0.0.0', () => console.log(`Server running on port ${PORT} and listening on all network interfaces`)); 
+// Start server on all network interfaces
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`\n=== SERVER STARTED ===`);
+  console.log(`Server running on port ${PORT} and listening on all network interfaces`);
+  console.log(`Local IP addresses: ${getLocalIps().join(', ')}`);
+  console.log(`Test the API at: http://localhost:${PORT}/api/test`);
+  console.log(`Test the API from mobile: http://<your-computer-ip>:${PORT}/api/test`);
+  console.log(`=== SERVER READY ===\n`);
+}); 
