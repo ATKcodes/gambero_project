@@ -9,11 +9,12 @@
   height: 100vh;
   display: flex;
   background-color: var(--ion-color-tertiary);
-  padding-left: 0;
+  padding-left: 3rem;
   overflow-y: auto;
 }
 
 .logo-section {
+  margin-left: 10rem;
   width: 25%;
   display: flex;
   justify-content: center;
@@ -40,6 +41,7 @@
 }
 
 .form-section {
+  margin-left: 12rem;
   width: 75%;
   display: flex;
   justify-content: center;
@@ -127,13 +129,15 @@ ion-radio {
 @media (max-width: 768px) {
   .login-container {
     flex-direction: column;
-    padding: 0;
+    padding-left: 0;
+    padding-right: 0;
     height: 100%;
   }
   
   .logo-section, .form-section {
     width: 100%;
     padding: 0.5rem;
+    margin-left: 0;
   }
   
   .logo-section {
