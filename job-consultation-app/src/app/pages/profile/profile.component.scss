@@ -1,0 +1,56 @@
+.profile-container {
+  background-color: var(--ion-color-tertiary);
+  min-height: 100%;
+  padding: 16px;
+}
+
+.profile-avatar {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 16px;
+  border: 4px solid var(--ion-color-primary);
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 24px;
+  color: var(--ion-color-dark);
+}
+
+ion-card {
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+ion-card-header {
+  background-color: var(--ion-color-primary);
+}
+
+ion-card-title {
+  color: white;
+  font-size: 18px;
+}
+
+.certificate-form, .experience-form, .payment-form {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--ion-color-light);
+}
+
+ion-button[expand="block"] {
+  margin-top: 16px;
+}
+
+ion-item {
+  --padding-start: 0;
+  margin-bottom: 8px;
+}
+
+ion-textarea {
+  min-height: 100px;
+}
+
+/* Custom styles for the date picker */
+ion-datetime-button {
+  margin-top: 8px;
+} 

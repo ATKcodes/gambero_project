@@ -68,37 +68,37 @@ export class UserService {
   constructor(private apiService: ApiService) {}
 
   getProfile(userId: string): Observable<UserProfile> {
-    return this.apiService.get<UserProfile>(`/api/users/${userId}`).pipe(
+    return this.apiService.get<UserProfile>(`/users/${userId}`).pipe(
       map(response => this.mapToUserProfile(response))
     );
   }
 
   updateProfile(profileData: Partial<UserProfile>): Observable<UserProfile> {
-    return this.apiService.put<UserProfile>('/api/users/profile', profileData).pipe(
+    return this.apiService.put<UserProfile>('/users/profile', profileData).pipe(
       map(response => this.mapToUserProfile(response))
     );
   }
 
   getActiveSellers(): Observable<UserProfile[]> {
-    return this.apiService.get<UserProfile[]>('/api/users/sellers').pipe(
+    return this.apiService.get<UserProfile[]>('/users/sellers').pipe(
       map(response => response.map(profile => this.mapToUserProfile(profile)))
     );
   }
 
   getJobRequests(userId: string, role: 'buyer' | 'seller'): Observable<JobRequest[]> {
-    return this.apiService.get<JobRequest[]>(`/api/jobs/${role}/${userId}`).pipe(
+    return this.apiService.get<JobRequest[]>(`/jobs`).pipe(
       map(response => response.map(job => this.mapToJobRequest(job)))
     );
   }
 
   createJobRequest(job: Partial<JobRequest>): Observable<JobRequest> {
-    return this.apiService.post<JobRequest>('/api/jobs', job).pipe(
+    return this.apiService.post<JobRequest>('/jobs', job).pipe(
       map(response => this.mapToJobRequest(response))
     );
   }
 
   assignJobRequest(jobId: string, sellerId: string): Observable<JobRequest> {
-    return this.apiService.put<JobRequest>(`/api/jobs/${jobId}/assign`, { sellerId }).pipe(
+    return this.apiService.put<JobRequest>(`/jobs/${jobId}/assign`, { sellerId }).pipe(
       map(response => this.mapToJobRequest(response))
     );
   }

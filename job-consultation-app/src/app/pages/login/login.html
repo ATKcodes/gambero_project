@@ -1,0 +1,84 @@
+<div class="login-container">
+ <div class="logo-section">
+   <div class="logo">
+	 <h1>JC</h1>
+	 <p>Quick Question? Cheap answer</p>
+   </div>
+ </div>
+ <div class="form-section">
+   <ion-card>
+	 <ion-card-content>
+	   <div class="form-field" *ngIf="!isLogin">
+		 <ion-input 
+		   class="input-field"
+		   label="Username" 
+		   labelPlacement="floating"
+		   placeholder="Enter your username"
+		   type="text" 
+		   [ngModel]="username" 
+		   (ngModelChange)="username = $event">
+		 </ion-input>
+	   </div>
+	   
+	   <div class="form-field" *ngIf="!isLogin">
+		 <ion-input 
+		   class="input-field"
+		   label="Full Name" 
+		   labelPlacement="floating"
+		   placeholder="Enter your full name"
+		   type="text" 
+		   [ngModel]="fullName" 
+		   (ngModelChange)="fullName = $event">
+		 </ion-input>
+	   </div>
+	   
+	   <div class="form-field email-field">
+		 <ion-input 
+		   class="input-field email-input"
+		   label="Email" 
+		   labelPlacement="floating"
+		   placeholder="Enter your email"
+		   type="email" 
+		   [ngModel]="email" 
+		   (ngModelChange)="email = $event">
+		 </ion-input>
+	   </div>
+		 
+		 <div class="form-field password-field">
+		 <ion-input 
+		   class="input-field"
+		   label="Password" 
+		   labelPlacement="floating"
+		   placeholder="Enter your password"
+		   type="password" 
+		   [ngModel]="password" 
+		   (ngModelChange)="password = $event">
+		 </ion-input>
+	   </div>
+		 
+		 <ion-radio-group *ngIf="!isLogin" [ngModel]="userType" (ngModelChange)="userType = $event">
+		   <ion-item lines="none">
+			 <ion-radio value="client">I want to hire a consultant</ion-radio>
+		   </ion-item>
+		   <ion-item lines="none"> 
+			 <ion-radio value="seller">I want to offer consultations</ion-radio>
+		   </ion-item>
+		 </ion-radio-group>
+		 
+		 <div class="ion-padding button-container">
+		   <ion-button expand="block" (click)="handleAuth()" class="login-button">
+			 {{ isLogin ? 'Login' : 'Register' }}
+		   </ion-button>
+		   
+		   <ion-button *ngIf="isLogin" expand="block" class="secondary-button" (click)="login42()">
+			 Login with 42
+		   </ion-button>
+		   
+		   <ion-button expand="block" fill="clear" (click)="toggleMode()" class="toggle-button">
+			 {{ isLogin ? 'Need an account? Register' : 'Already have an account? Login' }}
+		   </ion-button>
+		 </div>
+	   </ion-card-content>
+	 </ion-card>
+   </div>
+ </div>

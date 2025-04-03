@@ -11,6 +11,7 @@ export interface User {
   userType: string;
   token?: string;
   createdAt?: Date; // Added for compatibility with view-profile component
+  profileImage?: string;
 }
 
 @Injectable({
@@ -58,26 +59,23 @@ export class AuthService {
 
   login(email: string, password: string): Observable<User> {
     return this.apiService.login(email, password).pipe(
-      switchMap(response => {
+      map(response => {
         if (response && response.token) {
-          // Get user info
-          return this.apiService.getCurrentUser().pipe(
-            map(userResponse => {
-              const user: User = {
-                id: userResponse._id,
-                username: userResponse.username,
-                email: userResponse.email,
-                userType: userResponse.userType,
-                token: response.token,
-                createdAt: new Date(userResponse.createdAt || Date.now())
-              };
-              
-              // Store user in localStorage
-              localStorage.setItem('user', JSON.stringify(user));
-              this.currentUserSubject.next(user);
-              return user;
-            })
-          );
+          // Create a minimal user object with the token
+          const user: User = {
+            id: response.user?._id || '',
+            username: response.user?.username || '',
+            email: email,
+            userType: response.user?.userType || '',
+            token: response.token
+          };
+          
+          // Store user in localStorage
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+          
+          // Return the user
+          return user;
         }
         throw new Error('Invalid login response');
       }),
@@ -87,33 +85,44 @@ export class AuthService {
     );
   }
 
-  loginWith42(token: string): Observable<User> {
-    return this.apiService.loginWith42(token).pipe(
-      switchMap(response => {
+  loginWith42(code: string): Observable<User> {
+    return this.apiService.loginWith42Code(code).pipe(
+      map(response => {
         if (response && response.token) {
-          // Get user info
-          return this.apiService.getCurrentUser().pipe(
-            map(userResponse => {
-              const user: User = {
-                id: userResponse._id,
-                username: userResponse.username,
-                email: userResponse.email,
-                userType: userResponse.userType,
-                token: response.token,
-                createdAt: new Date(userResponse.createdAt || Date.now())
-              };
-              
-              // Store user in localStorage
-              localStorage.setItem('user', JSON.stringify(user));
-              this.currentUserSubject.next(user);
-              return user;
-            })
-          );
+          const user: User = {
+            id: response.userData?._id || '',
+            username: response.userData?.username || '',
+            email: response.userData?.email || '',
+            userType: response.userData?.userType || 'client',
+            token: response.token,
+            profileImage: response.userData?.profileImage
+          };
+          
+          // Store user in localStorage
+          localStorage.setItem('user', JSON.stringify(user));
+          this.currentUserSubject.next(user);
+          
+          // If new user, navigate to profile completion
+          if (response.isNewUser) {
+            this.router.navigate(['/complete-profile']);
+          }
+          
+          return user;
         }
-        throw new Error('Invalid login response');
+        throw new Error('Invalid 42 login response');
       }),
       catchError(error => {
         throw error;
+      })
+    );
+  }
+
+  get42LoginUrl(): Observable<string> {
+    return this.apiService.get42LoginUrl().pipe(
+      map(response => response.url),
+      catchError(error => {
+        console.error('Error getting 42 login URL:', error);
+        return of('');
       })
     );
   }
@@ -126,7 +135,28 @@ export class AuthService {
   }
 
   isLoggedIn(): boolean {
-    return !!this.currentUserSubject.value;
+    // First check if we have a user in the BehaviorSubject
+    if (!!this.currentUserSubject.value) {
+      return true;
+    }
+    
+    // If not, check localStorage directly for a user with a token
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        if (user && user.token) {
+          console.log('Found user with token in localStorage but not in AuthService, updating...');
+          // Update the BehaviorSubject
+          this.currentUserSubject.next(user);
+          return true;
+        }
+      } catch (e) {
+        console.error('Error parsing stored user:', e);
+      }
+    }
+    
+    return false;
   }
 
   getUser(): User | null {
@@ -139,5 +169,52 @@ export class AuthService {
 
   getToken(): string | undefined {
     return this.currentUserSubject.value?.token;
+  }
+
+  refreshUserData(): Observable<User | null> {
+    // Only try to refresh if we have a token
+    if (this.getToken()) {
+      return this.apiService.getCurrentUser().pipe(
+        map(userResponse => {
+          if (userResponse) {
+            const currentUser = this.getUser();
+            const user: User = {
+              id: userResponse._id,
+              username: userResponse.username,
+              email: userResponse.email,
+              userType: userResponse.userType,
+              token: currentUser?.token || '',
+              createdAt: new Date(userResponse.createdAt || Date.now()),
+              profileImage: userResponse.profileImage
+            };
+            
+            // Store user in localStorage
+            localStorage.setItem('user', JSON.stringify(user));
+            this.currentUserSubject.next(user);
+            return user;
+          }
+          return null;
+        }),
+        catchError(error => {
+          console.error('Error refreshing user data:', error);
+          return of(null);
+        })
+      );
+    }
+    return of(null);
+  }
+  
+  // Directly update the BehaviorSubject from localStorage
+  updateUserFromStorage(): void {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        this.currentUserSubject.next(user);
+        console.log('Updated auth service user from storage, userType:', user.userType);
+      } catch (e) {
+        console.error('Error parsing stored user:', e);
+      }
+    }
   }
 } 

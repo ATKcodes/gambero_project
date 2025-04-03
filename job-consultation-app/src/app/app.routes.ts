@@ -1,10 +1,25 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './guards/auth.guard';
+import { MarketGuard } from './guards/market.guard';
 
 export const routes: Routes = [
   {
     path: 'login',
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent)
+  },
+  {
+    path: 'oauth-callback',
+    loadComponent: () => import('./pages/oauth-callback/oauth-callback.component').then(m => m.OAuthCallbackComponent)
+  },
+  {
+    path: 'login-success',
+    redirectTo: 'market',
+    pathMatch: 'full'
+  },
+  {
+    path: 'complete-profile',
+    loadComponent: () => import('./pages/profile-completion/profile-completion.component').then(m => m.ProfileCompletionComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: 'main',
@@ -19,7 +34,7 @@ export const routes: Routes = [
   {
     path: 'market',
     loadComponent: () => import('./pages/market/market.component').then(m => m.MarketComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, MarketGuard]
   },
   {
     path: 'view-profile/:id',
@@ -43,6 +58,7 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: 'login'
+    redirectTo: 'login',
+    pathMatch: 'full'
   }
 ];

@@ -26,7 +26,7 @@ const UserSchema = new mongoose.Schema({
   },
   userType: {
     type: String,
-    enum: ['client', 'seller'],
+    enum: ['client', 'seller', 'pending'],
     required: true
   },
   createdAt: {
@@ -35,7 +35,16 @@ const UserSchema = new mongoose.Schema({
   },
   fortytwoId: {
     type: String,
-    sparse: true
+    sparse: true,
+    unique: true
+  },
+  profileCompleted: {
+    type: Boolean,
+    default: false
+  },
+  isNewUser: {
+    type: Boolean,
+    default: true
   }
 });
 
