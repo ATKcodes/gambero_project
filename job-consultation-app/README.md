@@ -23,6 +23,8 @@ A platform for connecting buyers with sellers for professional job consultations
 - Node.js (v16 or higher)
 - MongoDB (v4.0 or higher)
 - Angular CLI
+- Android Studio (for mobile deployment)
+- ADB (Android Debug Bridge)
 
 ### Installation
 
@@ -43,26 +45,124 @@ npm install
 NODE_ENV=development
 PORT=3000
 MONGO_URI=mongodb://localhost:27017/job-consultation
-JWT_SECRET=your_secret_key
+JWT_SECRET=your_randomly_generated_secret_key  # Important for security! Generate with: node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+FORTYTWO_CLIENT_ID=your_42_client_id
+FORTYTWO_CLIENT_SECRET=your_42_client_secret
+FORTYTWO_CALLBACK_URL=http://localhost:4200/oauth-callback
 ```
 
-4. Run the application
-- Development mode (both frontend and backend):
+> **SECURITY NOTE:** Never commit your actual JWT_SECRET to version control. Always generate a unique secret for each deployment using the command above.
+
+## Running the App on PC
+
+1. Start the MongoDB server (see MongoDB section below for WSL users)
+
+2. Start the backend server
 ```bash
-npm run dev
+cd job-consultation-app/backend
+node server.js
 ```
 
-- Frontend only:
+3. Start the frontend development server (in a separate terminal)
 ```bash
+cd job-consultation-app
 npm start
 ```
 
-- Backend only:
-```bash
-npm run server
+4. Access the application in your browser
+```
+http://localhost:4200
 ```
 
-### MongoDB on WSL (Developer Note)
+## Running the App on Android Device
+
+### Development Setup (Live Reload)
+
+1. Start the backend server
+```bash
+cd job-consultation-app/backend
+node server.js
+```
+
+2. Set up ADB reverse port forwarding (in a separate terminal)
+```powershell
+# Navigate to ADB (if not in PATH)
+cd C:\Users\<YOUR_USERNAME>\AppData\Local\Android\Sdk\platform-tools
+
+# Set up port forwarding
+adb reverse tcp:3000 tcp:3000
+adb reverse tcp:4200 tcp:4200
+
+# Verify the device is connected
+adb devices
+```
+
+3. Make sure your `src/environments/environment.ts` is set to use localhost with ADB reverse:
+```typescript
+export const environment = {
+  production: false,
+  apiUrl: 'http://localhost:3000/api',
+  // ...other settings
+};
+```
+
+4. Build the Angular app and sync with Capacitor
+```bash
+cd job-consultation-app
+npm run build
+npx cap sync android
+```
+
+5. Open and run in Android Studio
+```bash
+npx cap open android
+```
+Then in Android Studio:
+- Connect your device
+- Enable USB debugging on your device
+- Select your device in the device dropdown
+- Click the Run button (green triangle)
+
+### Production Build for Android
+
+1. Update environment.prod.ts with appropriate API URL
+
+2. Build the app for production
+```bash
+npm run build -- --configuration=production
+npx cap sync android
+```
+
+3. Open in Android Studio
+```bash
+npx cap open android
+```
+
+4. Generate a signed APK/AAB in Android Studio:
+   - Build > Generate Signed Bundle/APK
+
+## Troubleshooting Common Issues
+
+### API Connection Issues
+- Verify backend is running correctly: `curl http://localhost:3000/api/test`
+- Ensure ADB reverse commands completed successfully
+- Check your device has internet permissions enabled
+- Inspect the network_security_config.xml to ensure proper domains are allowed
+
+### Build Issues
+- Always run `npm run build` followed by `npx cap sync android` after making changes
+- Clear cache if necessary: `npm cache clean --force`
+
+### ADB Connection Issues
+- Try unplugging and reconnecting your device
+- Restart ADB: `adb kill-server` followed by `adb start-server`
+- Ensure USB debugging is enabled on the device
+
+### 42 OAuth Issues
+- Make sure your redirect URLs are correctly set in the 42 API settings
+- Check that environment variables match your 42 API application settings
+
+## MongoDB on WSL (Developer Note)
 
 When running MongoDB on Windows Subsystem for Linux (WSL), you'll need to manage MongoDB manually:
 
@@ -82,11 +182,6 @@ mongosh
 ```
 
 These commands are necessary because WSL doesn't use systemd by default, so standard service management commands won't work.
-
-### Build for production
-```bash
-npm run build
-```
 
 ## Project Structure
 
