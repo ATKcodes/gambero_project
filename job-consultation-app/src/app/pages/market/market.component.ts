@@ -14,7 +14,7 @@ import { JobModalComponent } from '../../components/job-modal/job-modal.componen
 @Component({
   selector: 'app-market',
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule, JobModalComponent, ChatModalComponent],
+  imports: [IonicModule, CommonModule, FormsModule],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './market.html',
   styleUrls: ['./market.scss'],
