@@ -32,10 +32,12 @@ export class JobModalComponent implements OnInit {
   ) {}
   
   ngOnInit() {
+    console.log('Job modal initialized with job:', this.jobRequest);
     const currentUser = this.authService.getUser();
     const userType = this.authService.getUserType();
     
-    if (this.mode === 'view' && userType === 'seller' && this.jobRequest.status === 'open') {
+    // Properly set canTakeJob flag
+    if (this.mode === 'view' && userType === 'seller' && this.jobRequest && this.jobRequest.status === 'open') {
       this.canTakeJob = true;
     }
   }
@@ -83,7 +85,8 @@ export class JobModalComponent implements OnInit {
       return;
     }
     
-    if (!this.jobRequest.id) {
+    if (!this.jobRequest || !this.jobRequest.id) {
+      console.error('Missing job ID:', this.jobRequest);
       this.showToast('Invalid job request');
       return;
     }
@@ -99,7 +102,8 @@ export class JobModalComponent implements OnInit {
         this.modalCtrl.dismiss({...job, answer: this.jobAnswer});
       },
       error: (err) => {
-        this.showToast('Error accepting job: ' + err.message);
+        console.error('Error accepting job:', err);
+        this.showToast('Error accepting job: ' + (err.message || 'Unknown error'));
       }
     });
   }
@@ -250,7 +254,7 @@ export class MarketComponent implements OnInit {
       component: JobModalComponent,
       componentProps: {
         mode: 'view',
-        jobRequest: job
+        jobRequest: {...job}
       }
     });
     
