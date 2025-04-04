@@ -16,7 +16,9 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class JobModalComponent implements OnInit {
   mode: 'create' | 'view' = 'create';
-  jobRequest: Partial<JobRequest> = {};
+  jobRequest: Partial<JobRequest> = {
+    price: 5 // Set default price
+  };
   canTakeJob = false;
   
   constructor(
@@ -54,6 +56,7 @@ export class JobModalComponent implements OnInit {
       buyerId: currentUser.id,
       status: 'open',
       expertise: this.jobRequest.expertise,
+      price: this.jobRequest.price || 5, // Default price if not specified
       updatedAt: new Date()
     };
     
@@ -63,7 +66,8 @@ export class JobModalComponent implements OnInit {
         this.modalCtrl.dismiss(job);
       },
       error: (err) => {
-        this.showToast('Error posting question: ' + err.message);
+        console.error('Error posting question:', err);
+        this.showToast('Error posting question. Please try again.');
       }
     });
   }

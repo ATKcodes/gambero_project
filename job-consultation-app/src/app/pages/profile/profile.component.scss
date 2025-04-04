@@ -8,8 +8,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
-  padding: 20px 0;
+  padding: 24px 16px;
+  text-align: center;
+
+  .profile-avatar {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 16px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 24px;
+  }
+
+  p {
+    margin: 4px 0;
+    color: var(--ion-color-medium);
+  }
 }
 
 .profile-avatar {
@@ -56,16 +72,16 @@ ion-card-title {
 
 .password-section, 
 .add-card-section {
-  margin-top: 16px;
-  padding-top: 16px;
+  margin-top: 20px;
   border-top: 1px solid var(--ion-color-light);
-}
+  padding-top: 16px;
 
-.password-section h4,
-.add-card-section h4 {
-  margin-bottom: 16px;
-  font-size: 16px;
-  color: var(--ion-color-medium);
+  h4 {
+    margin-top: 0;
+    margin-bottom: 16px;
+    font-size: 16px;
+    color: var(--ion-color-medium);
+  }
 }
 
 ion-button[color="success"] {
@@ -98,4 +114,10 @@ ion-chip {
 ion-badge {
   font-size: 14px;
   padding: 4px 8px;
+}
+
+// Style for logout button
+.logout-button {
+  margin-top: 32px;
+  --border-radius: 8px;
 } 

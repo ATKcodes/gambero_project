@@ -21,6 +21,12 @@
 	</ion-item>
 	
 	<ion-item *ngIf="mode === 'create'">
+	  <ion-label position="floating">Price (€)</ion-label>
+	  <ion-input type="number" [(ngModel)]="jobRequest.price" min="5"></ion-input>
+	  <ion-note slot="helper">Minimum price is 5€</ion-note>
+	</ion-item>
+	
+	<ion-item *ngIf="mode === 'create'">
 	  <ion-label>Expertise Needed</ion-label>
 	  <ion-select [(ngModel)]="jobRequest.expertise">
 		<ion-select-option value="Pastry">Pastry</ion-select-option>
@@ -42,6 +48,13 @@
 		<ion-label>
 		  <h2>Expertise</h2>
 		  <p>{{ jobRequest.expertise }}</p>
+		</ion-label>
+	  </ion-item>
+	  
+	  <ion-item *ngIf="jobRequest.price">
+		<ion-label>
+		  <h2>Price</h2>
+		  <p>{{ jobRequest.price }}€</p>
 		</ion-label>
 	  </ion-item>
 	  

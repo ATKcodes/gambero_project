@@ -57,6 +57,7 @@ export interface JobRequest {
   title: string;
   description: string;
   expertise?: string;
+  price: number;
   status: 'open' | 'assigned' | 'completed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
@@ -155,6 +156,7 @@ export class UserService {
       title: data.title,
       description: data.description,
       expertise: data.expertise,
+      price: data.price,
       status: data.status,
       createdAt: new Date(data.createdAt),
       updatedAt: new Date(data.updatedAt)

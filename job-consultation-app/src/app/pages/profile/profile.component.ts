@@ -70,6 +70,16 @@ export class ProfileComponent implements OnInit {
     this.isSeller = this.user.userType === 'seller';
     this.isClient = this.user.userType === 'client';
     
+    // Check if we have a valid user ID
+    if (!this.user.id) {
+      console.error('Missing user ID. Cannot load profile data.');
+      this.showToast('Error: Missing user ID. Please log in again.');
+      this.authService.logout(); // Force logout to get a fresh login
+      return;
+    }
+    
+    console.log('Loading user data for ID:', this.user.id);
+    
     // Load additional user data from API
     this.apiService.get(`/users/${this.user.id}`).subscribe({
       next: (userData: any) => {
@@ -195,5 +205,10 @@ export class ProfileComponent implements OnInit {
       position: 'top'
     });
     await toast.present();
+  }
+  
+  logout(): void {
+    this.authService.logout();
+    this.showToast('Successfully logged out');
   }
 } 
