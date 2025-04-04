@@ -6,6 +6,20 @@ import {
   IonSpinner
 } from '@ionic/angular/standalone';
 import { AuthService } from '../../services/auth.service';
+import { User } from '../../models/user.model';
+
+// Define interface for 42 login response
+interface LoginResponse {
+  token: string;
+  isNewUser: boolean;
+  userData?: {
+    _id: string;
+    username: string;
+    email: string;
+    userType: string;
+    profileCompleted?: boolean;
+  };
+}
 
 @Component({
   selector: 'app-oauth-callback',
@@ -75,12 +89,13 @@ export class OAuthCallbackComponent implements OnInit {
         return;
       }
       
-      console.log('Exchanging code for token...');
+      console.log('Exchanging code for token, code:', code.substring(0, 10) + '...');
       
-      // Exchange code for token
+      // Exchange code for token with the login42 method
       this.authService.loginWith42(code).subscribe({
-        next: (user) => {
-          if (user) {
+        next: (user: User | null) => {
+          console.log('Login response:', user);
+          if (user && user.token) {
             console.log('Login successful, user type:', user.userType);
             this.message = 'Login successful!';
             
@@ -97,10 +112,10 @@ export class OAuthCallbackComponent implements OnInit {
             setTimeout(() => this.router.navigate(['/login']), 2000);
           }
         },
-        error: (err) => {
+        error: (err: Error) => {
           console.error('Error processing OAuth callback:', err);
           console.error('Full error details:', JSON.stringify(err, null, 2));
-          this.message = `Error: ${err.message || 'Unknown error'}. Please try again.`;
+          this.message = `Authentication error. Please try again.`;
           setTimeout(() => this.router.navigate(['/login']), 3000);
         }
       });
