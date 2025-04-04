@@ -38,6 +38,26 @@ export class AppComponent implements OnInit {
       console.log('Is desktop:', this.platform.is('desktop'));
       console.log('API URL:', environment.apiUrl);
       
+      // DEVELOPMENT HELPER: Clear localStorage when requested
+      // For testing, add ?clear=true to the URL query params
+      // Or use this on first app load during development to reset state
+      if (this.platform.is('capacitor') || this.platform.is('cordova')) {
+        console.log('Checking if we should clear localStorage...');
+        try {
+          // Use a flag in localStorage to know if this is the first run after a build
+          const lastBuildTime = localStorage.getItem('lastBuildTime');
+          const currentBuildTime = `${new Date().toISOString()}`; // Build timestamp
+          
+          if (lastBuildTime !== currentBuildTime) {
+            console.log('New build detected, clearing localStorage');
+            localStorage.clear();
+            localStorage.setItem('lastBuildTime', currentBuildTime);
+          }
+        } catch (e) {
+          console.error('Error managing localStorage:', e);
+        }
+      }
+      
       // Debug network connectivity
       if (this.platform.is('android')) {
         console.log('Testing backend connection from Android...');
