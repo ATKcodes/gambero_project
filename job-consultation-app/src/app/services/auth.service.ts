@@ -1,20 +1,11 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { map, tap, catchError, switchMap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { Platform } from '@ionic/angular';
-
-export interface User {
-  id: string;
-  username: string;
-  email: string;
-  userType: string;
-  fullName?: string;
-  token?: string;
-  createdAt?: Date; // Added for compatibility with view-profile component
-  profileImage?: string;
-}
+import { User } from '../models/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -24,6 +15,7 @@ export class AuthService {
   public currentUser: Observable<User | null>;
 
   constructor(
+    private http: HttpClient,
     private apiService: ApiService,
     private router: Router,
     private platform: Platform
@@ -164,8 +156,42 @@ export class AuthService {
 
   // Check if we're running on a mobile platform
   private isPlatformMobile(): boolean {
-    // Simple check - if we're in a Capacitor container, we're on mobile
-    return typeof (window as any).Capacitor !== 'undefined';
+    // Get window location
+    const isLocalhost = window.location.hostname === 'localhost' || 
+                        window.location.hostname === '127.0.0.1';
+    
+    // If we're on localhost browser, ALWAYS return false unless it's a mobile emulator
+    if (isLocalhost) {
+      const isMobileEmulator = window.navigator.userAgent.includes('Mobile');
+      const isSmallScreen = window.innerWidth <= 768;
+      
+      console.log('Desktop check:', {
+        isLocalhost,
+        isMobileEmulator,
+        isSmallScreen,
+        innerWidth: window.innerWidth,
+        userAgent: window.navigator.userAgent
+      });
+      
+      // Only return true if it's explicitly a mobile emulator
+      if (!isMobileEmulator) {
+        console.log('Detected desktop browser on localhost, forcing non-mobile mode');
+        return false;
+      }
+    }
+    
+    // Check for device capabilities 
+    const isCapacitor = typeof (window as any).Capacitor !== 'undefined';
+    const isAndroidStudio = this.platform.is('android');
+    
+    console.log('Mobile platform detection:', { 
+      isLocalhost,
+      isCapacitor,
+      isAndroidStudio,
+      platforms: this.platform.platforms() 
+    });
+    
+    return isCapacitor || isAndroidStudio;
   }
 
   logout(): void {

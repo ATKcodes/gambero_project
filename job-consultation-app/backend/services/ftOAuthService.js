@@ -19,7 +19,7 @@ class FtOAuthService {
    * @returns {string} The authorization URL
    */
   getAuthorizationUrl(isMobile = false) {
-    console.log('Generating 42 OAuth URL');
+    console.log('Generating 42 OAuth URL for', isMobile ? 'mobile device' : 'web browser');
     
     // For mobile, use the custom URL scheme
     const redirectUri = isMobile ? 
@@ -38,6 +38,7 @@ class FtOAuthService {
       '&scope=public';
       
     console.log('Generated auth URL with redirectUri:', redirectUri);
+    console.log('Full auth URL:', authUrl);
     return authUrl;
   }
 
