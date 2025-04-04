@@ -1,0 +1,43 @@
+    <ion-button (click)="login42()" expand="block" color="primary" class="ion-margin-top">
+      <img src="assets/icons/42_logo.svg" alt="42" class="button-icon" />
+      Login with 42
+    </ion-button>
+
+    <ion-button (click)="showOAuthRedirectInfo()" expand="block" fill="outline" color="medium" size="small" class="ion-margin-top">
+      <ion-icon name="information-circle-outline" slot="start"></ion-icon>
+      OAuth Setup Help
+    </ion-button>
+
+    <ion-card *ngIf="showOAuthInfo && oauthRedirectUris" class="ion-margin-top">
+      <ion-card-header>
+        <ion-card-title>42 OAuth Configuration</ion-card-title>
+        <ion-card-subtitle>Add these URIs to your 42 Application's Redirect URIs</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <div class="uri-container">
+          <h4>Web Redirect URI:</h4>
+          <div class="uri-display">
+            <code>{{ oauthRedirectUris.web }}</code>
+            <ion-button size="small" fill="clear" (click)="copyToClipboard(oauthRedirectUris.web)">
+              <ion-icon name="copy-outline"></ion-icon>
+            </ion-button>
+          </div>
+          
+          <h4>Mobile Redirect URI:</h4>
+          <div class="uri-display">
+            <code>{{ oauthRedirectUris.mobile }}</code>
+            <ion-button size="small" fill="clear" (click)="copyToClipboard(oauthRedirectUris.mobile)">
+              <ion-icon name="copy-outline"></ion-icon>
+            </ion-button>
+          </div>
+          
+          <p class="setup-instructions">
+            To fix the "redirect URI is not valid" error, go to the 
+            <a href="https://profile.intra.42.fr/oauth/applications" target="_blank">
+              42 API Applications page
+            </a> 
+            and add both URIs to your application's settings.
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card> 

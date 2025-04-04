@@ -385,4 +385,24 @@ router.post('/complete-profile', auth, async (req, res) => {
   }
 });
 
+// @route   GET api/auth/oauth-info
+// @desc    Get OAuth configuration information
+// @access  Public
+router.get('/oauth-info', async (req, res) => {
+  try {
+    // Retrieve the callback URLs from the OAuth service
+    const webCallbackUrl = ftOAuthService.getCallbackUrl(false);
+    const mobileCallbackUrl = ftOAuthService.getCallbackUrl(true);
+    
+    res.json({
+      webRedirectUri: webCallbackUrl,
+      mobileRedirectUri: mobileCallbackUrl,
+      message: "These URIs need to be added to your 42 OAuth application's 'Redirect URI' settings."
+    });
+  } catch (err) {
+    console.error('Error getting OAuth info:', err);
+    res.status(500).send('Server error');
+  }
+});
+
 module.exports = router; 

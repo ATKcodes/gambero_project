@@ -365,4 +365,17 @@ export class ApiService {
       catchError(this.handleError)
     );
   }
+
+  /**
+   * Get OAuth configuration information
+   * @returns Observable with OAuth redirect URIs
+   */
+  getOAuthConfigInfo(): Observable<any> {
+    return this.http.get<any>(`${this.apiUrl}/auth/oauth-info`).pipe(
+      catchError(error => {
+        console.error('Error getting OAuth configuration:', error);
+        return throwError(() => error);
+      })
+    );
+  }
 } 
