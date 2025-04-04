@@ -43,6 +43,8 @@ export class LoginComponent implements OnInit {
   apiStatus = 'Not tested';
   connectionDetails = '';
   showLoading = false;
+  oauthRedirectUris: { web: string, mobile: string } | null = null;
+  showOAuthInfo = false;
 
   constructor(
     private authService: AuthService,
@@ -188,50 +190,54 @@ export class LoginComponent implements OnInit {
     toast.present();
   }
 
-  login42() {
-    console.log('Initiating 42 OAuth login flow');
+  loginWith42() {
+    console.log('Attempting 42 OAuth login');
     this.showLoading = true;
-    console.log('Platform info:', {
-      isCapacitor: this.platform.is('capacitor'),
-      isAndroid: this.platform.is('android'),
-      isMobile: this.platform.is('mobile'),
-      platforms: this.platform.platforms()
-    });
     
     this.authService.get42LoginUrl().subscribe({
       next: (url) => {
-        this.showLoading = false;
         if (url) {
-          console.log('42 login URL received:', url);
-          
-          // IMPORTANT: For browser testing on localhost, we need to use direct href
-          const isLocalhost = window.location.hostname === 'localhost' || 
-                              window.location.hostname === '127.0.0.1';
-                              
-          if (isLocalhost && !url.includes('com.jobconsultation.app://')) {
-            console.log('Browser detected, redirecting directly to:', url);
-            window.location.href = url;
-            return;
-          }
-          
-          // For mobile app
-          if (this.platform.is('capacitor') || this.platform.is('android')) {
-            console.log('Mobile app detected, opening in system browser');
-            window.open(url, '_system');
-          } else {
-            console.log('Redirecting to browser OAuth URL:', url);
-            window.location.href = url;
-          }
+          console.log('Navigating to 42 OAuth URL:', url);
+          window.location.href = url;
         } else {
-          console.error('Failed to get 42 login URL');
-          this.showToast('Failed to connect to 42 authentication service', 'danger');
+          this.showToast('Failed to connect to 42 OAuth', 'danger');
+          this.showLoading = false;
         }
       },
       error: (err) => {
-        console.error('Error getting 42 login URL:', err);
+        console.error('Error getting 42 OAuth URL:', err);
+        this.showToast('Error connecting to 42 OAuth', 'danger');
         this.showLoading = false;
-        this.showToast('Error connecting to authentication service', 'danger');
       }
+    });
+  }
+  
+  showOAuthRedirectInfo() {
+    this.showOAuthInfo = true;
+    this.showLoading = true;
+    
+    this.apiService.getOAuthConfigInfo().subscribe({
+      next: (info) => {
+        this.oauthRedirectUris = {
+          web: info.webRedirectUri,
+          mobile: info.mobileRedirectUri
+        };
+        this.showLoading = false;
+      },
+      error: (err) => {
+        console.error('Error getting OAuth config:', err);
+        this.showToast('Could not retrieve OAuth configuration', 'danger');
+        this.showLoading = false;
+      }
+    });
+  }
+
+  copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(() => {
+      this.showToast('Copied to clipboard', 'success');
+    }).catch(err => {
+      console.error('Could not copy text: ', err);
+      this.showToast('Failed to copy to clipboard', 'danger');
     });
   }
 } 

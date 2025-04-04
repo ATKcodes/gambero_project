@@ -15,17 +15,6 @@
 	  <ion-input [(ngModel)]="jobRequest.title" [readonly]="mode === 'view'"></ion-input>
 	</ion-item>
 	
-	<ion-item>
-	  <ion-label position="floating">Description</ion-label>
-	  <ion-textarea [(ngModel)]="jobRequest.description" rows="5" [readonly]="mode === 'view'"></ion-textarea>
-	</ion-item>
-	
-	<ion-item *ngIf="mode === 'create'">
-	  <ion-label position="floating">Price (€)</ion-label>
-	  <ion-input type="number" [(ngModel)]="jobRequest.price" min="5"></ion-input>
-	  <ion-note slot="helper">Minimum price is 5€</ion-note>
-	</ion-item>
-	
 	<ion-item *ngIf="mode === 'create'">
 	  <ion-label>Expertise Needed</ion-label>
 	  <ion-select [(ngModel)]="jobRequest.expertise" interface="action-sheet">
@@ -35,6 +24,17 @@
 		<ion-select-option value="Meats and fishes">Meats and fishes</ion-select-option>
 		<ion-select-option value="Wines">Wines</ion-select-option>
 	  </ion-select>
+	</ion-item>
+	
+	<ion-item>
+	  <ion-label position="floating">Description</ion-label>
+	  <ion-textarea [(ngModel)]="jobRequest.description" rows="5" [readonly]="mode === 'view'"></ion-textarea>
+	</ion-item>
+	
+	<ion-item *ngIf="mode === 'create'">
+	  <ion-label position="floating">Price (€)</ion-label>
+	  <ion-input type="number" [(ngModel)]="jobRequest.price" min="5"></ion-input>
+	  <ion-note slot="helper">Minimum price is 5€</ion-note>
 	</ion-item>
 	
 	<div *ngIf="mode === 'view'" class="ion-padding-top">

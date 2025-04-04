@@ -189,6 +189,17 @@ class FtOAuthService {
    * @returns {string} The appropriate callback URL
    */
   getCallbackUrl(isMobile = false) {
+    // Check if environment variables are set
+    if (!process.env.FT_OAUTH_REDIRECT_URI) {
+      console.error('CRITICAL ERROR: FT_OAUTH_REDIRECT_URI not configured in environment variables');
+      return 'ERROR_MISSING_REDIRECT_URI';
+    }
+    
+    // Mobile app redirects may use a different URI scheme
+    if (isMobile && !process.env.FT_OAUTH_MOBILE_REDIRECT_URI) {
+      console.warn('WARNING: FT_OAUTH_MOBILE_REDIRECT_URI not set, falling back to web redirect URI');
+    }
+    
     const callbackUrl = isMobile 
       ? process.env.FT_OAUTH_MOBILE_REDIRECT_URI || process.env.FT_OAUTH_REDIRECT_URI 
       : process.env.FT_OAUTH_REDIRECT_URI;
