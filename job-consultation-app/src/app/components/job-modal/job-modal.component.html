@@ -73,7 +73,7 @@
             <span>Price: {{jobRequest.price}} credits</span>
           </div>
           
-          <div class="info-row" *ngIf="jobRequest.expertise && jobRequest.expertise.length > 0">
+          <div class="info-row" *ngIf="jobRequest.expertise && isArray(jobRequest.expertise) && jobRequest.expertise.length > 0">
             <ion-icon name="briefcase-outline"></ion-icon>
             <span>Expertise: {{jobRequest.expertise.join(', ')}}</span>
           </div>

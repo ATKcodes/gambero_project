@@ -33,6 +33,11 @@ export class JobModalComponent implements OnInit {
     private userService: UserService
   ) {}
   
+  // Helper method for template
+  isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
+  
   ngOnInit() {
     console.log(`Job modal initialized in ${this.mode} mode with job:`, this.jobRequest);
     
@@ -41,6 +46,18 @@ export class JobModalComponent implements OnInit {
       this.showToast('Error: Invalid job data');
       setTimeout(() => this.modalCtrl.dismiss(), 2000);
       return;
+    }
+    
+    // Ensure expertise is always an array
+    if (!this.jobRequest.expertise) {
+      this.jobRequest.expertise = [];
+    } else if (!Array.isArray(this.jobRequest.expertise)) {
+      // If expertise is a string, try to split it, otherwise convert to array
+      if (typeof this.jobRequest.expertise === 'string') {
+        this.jobRequest.expertise = this.jobRequest.expertise.split(',').map((item: string) => item.trim());
+      } else {
+        this.jobRequest.expertise = [this.jobRequest.expertise];
+      }
     }
     
     const currentUser = this.authService.getUser();
@@ -75,13 +92,25 @@ export class JobModalComponent implements OnInit {
       return;
     }
     
+    // Process expertise to ensure it's an array
+    let expertise = [];
+    if (this.jobRequest.expertise) {
+      if (Array.isArray(this.jobRequest.expertise)) {
+        expertise = this.jobRequest.expertise;
+      } else if (typeof this.jobRequest.expertise === 'string') {
+        expertise = this.jobRequest.expertise.split(',').map((item: string) => item.trim());
+      } else {
+        expertise = [this.jobRequest.expertise];
+      }
+    }
+    
     // Ensure we have at least the minimal required fields
     const newJob: Partial<JobRequest> = {
       title: this.jobRequest.title,
       description: this.jobRequest.description,
       buyerId: currentUser.id,
       status: 'open',
-      expertise: this.jobRequest.expertise,
+      expertise: expertise,
       price: this.jobRequest.price || 5, // Default price if not specified
     };
     
