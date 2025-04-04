@@ -118,4 +118,45 @@
 		</div>
 	  </div>
 	</div>
+
+	<div *ngIf="isSeller" class="ion-padding">
+	  <!-- For Sellers: Show both open and assigned jobs -->
+	  <ion-segment [(ngModel)]="jobSegment" (ionChange)="segmentChanged()">
+		<ion-segment-button value="available">
+		  Available Jobs
+		</ion-segment-button>
+		<ion-segment-button value="current">
+		  My Current Jobs
+		</ion-segment-button>
+	  </ion-segment>
+
+	  <div *ngIf="jobSegment === 'available'">
+		<ion-button expand="block" (click)="navigateToQuestions()">
+		  <ion-icon name="search-outline" slot="start"></ion-icon>
+		  Browse Available Questions
+		</ion-button>
+	  </div>
+
+	  <div *ngIf="jobSegment === 'current' && assignedJobs.length === 0" class="ion-text-center ion-padding">
+		<ion-icon name="document-outline" size="large"></ion-icon>
+		<p>You haven't accepted any jobs yet.</p>
+	  </div>
+
+	  <div *ngIf="jobSegment === 'current' && assignedJobs.length > 0">
+		<ion-list>
+		  <ion-item *ngFor="let job of assignedJobs">
+			<ion-label>
+			  <h2>{{ job.title }}</h2>
+			  <p>{{ job.description | slice:0:100 }}{{ job.description.length > 100 ? '...' : '' }}</p>
+			  <ion-text color="medium">
+				<p>Price: {{ job.price }}€</p>
+			  </ion-text>
+			</ion-label>
+			<ion-button slot="end" fill="clear" (click)="openChat(job)">
+			  <ion-icon name="chatbubbles-outline"></ion-icon>
+			</ion-button>
+		  </ion-item>
+		</ion-list>
+	  </div>
+	</div>
   </ion-content>

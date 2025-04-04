@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
 import { UserService, UserProfile, JobRequest } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
+import { ChatModalComponent } from './chat-modal.component';
 
 @Component({
   selector: 'app-job-modal',
@@ -21,6 +22,7 @@ export class JobModalComponent implements OnInit {
     price: 5 // Set default price
   };
   canTakeJob = false;
+  jobAnswer: string = '';
   
   constructor(
     public modalCtrl: ModalController,
@@ -85,11 +87,16 @@ export class JobModalComponent implements OnInit {
       this.showToast('Invalid job request');
       return;
     }
+
+    if (!this.jobAnswer || this.jobAnswer.trim() === '') {
+      this.showToast('Please provide an answer to the question');
+      return;
+    }
     
-    this.userService.assignJobRequest(this.jobRequest.id, currentUser.id).subscribe({
+    this.userService.assignJobRequest(this.jobRequest.id, currentUser.id, this.jobAnswer).subscribe({
       next: (job) => {
         this.showToast('Job accepted successfully');
-        this.modalCtrl.dismiss(job);
+        this.modalCtrl.dismiss({...job, answer: this.jobAnswer});
       },
       error: (err) => {
         this.showToast('Error accepting job: ' + err.message);
@@ -119,15 +126,18 @@ export class MarketComponent implements OnInit {
   isSeller = false;
   sellers: UserProfile[] = [];
   jobs: JobRequest[] = [];
+  assignedJobs: JobRequest[] = [];
   user: User | null = null;
   isMessagesPopupOpen = true; // Default to open
+  jobSegment: 'available' | 'current' = 'available';
   
   constructor(
     private authService: AuthService,
     private userService: UserService,
     public router: Router,
     private modalCtrl: ModalController,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private toastCtrl: ToastController
   ) {}
   
   ngOnInit() {
@@ -205,6 +215,9 @@ export class MarketComponent implements OnInit {
     if (this.user) {
       this.userService.getJobRequests(this.user.id, 'seller').subscribe(jobs => {
         this.jobs = jobs;
+        // Filter for open and assigned jobs
+        this.jobs = jobs.filter(job => job.status === 'open');
+        this.assignedJobs = jobs.filter(job => job.status === 'assigned' && job.sellerId === this.user?.id);
       });
     }
   }
@@ -274,5 +287,21 @@ export class MarketComponent implements OnInit {
       // For clients, navigate to experts page
       this.router.navigate(['/experts']);
     }
+  }
+
+  async openChat(job: JobRequest) {
+    const modal = await this.modalCtrl.create({
+      component: ChatModalComponent,
+      componentProps: {
+        job: job
+      }
+    });
+    
+    await modal.present();
+  }
+
+  segmentChanged() {
+    // This function is triggered when the segment value changes
+    console.log('Segment changed to:', this.jobSegment);
   }
 } 

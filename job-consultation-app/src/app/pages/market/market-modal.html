@@ -71,8 +71,15 @@
 		Post Question
 	  </ion-button>
 	  
-	  <ion-button expand="block" *ngIf="mode === 'view' && canTakeJob" (click)="takeJob()">
-		Accept this job
-	  </ion-button>
+	  <div *ngIf="mode === 'view' && canTakeJob">
+		<ion-item>
+		  <ion-label position="floating">Your Answer</ion-label>
+		  <ion-textarea [(ngModel)]="jobAnswer" rows="4" placeholder="Type your answer here..."></ion-textarea>
+		</ion-item>
+		
+		<ion-button expand="block" [disabled]="!jobAnswer" (click)="takeJob()" class="ion-margin-top">
+		  Accept and Answer
+		</ion-button>
+	  </div>
 	</div>
   </ion-content>

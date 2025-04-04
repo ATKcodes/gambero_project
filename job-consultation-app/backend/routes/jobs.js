@@ -120,6 +120,11 @@ router.put('/:id/assign', auth, async (req, res) => {
     job.seller = req.user.id;
     job.status = 'assigned';
     
+    // Add answer if provided
+    if (req.body.answer) {
+      job.answer = req.body.answer;
+    }
+    
     await job.save();
     
     res.json(job);
