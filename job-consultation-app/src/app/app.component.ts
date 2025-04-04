@@ -88,19 +88,58 @@ export class AppComponent implements OnInit {
   }
 
   private handleOpenUrl(url: string) {
+    console.log('Handling deep link URL:', url);
+    
     // Check if this is our OAuth callback URL
     if (url.includes('oauth-callback')) {
-      // Parse the URL to extract the code parameter
-      const urlObj = new URL(url);
-      const code = urlObj.searchParams.get('code');
+      console.log('OAuth callback URL detected in deep link');
       
-      if (code) {
-        console.log('OAuth code received via deep link:', code);
-        // Navigate to the OAuth callback route with the code
-        this.router.navigate(['/oauth-callback'], { queryParams: { code } });
-      } else {
-        console.error('No code found in OAuth callback URL');
-        this.router.navigate(['/login']);
+      try {
+        // Parse the URL to extract the code parameter
+        const urlObj = new URL(url);
+        const code = urlObj.searchParams.get('code');
+        const state = urlObj.searchParams.get('state');
+        
+        console.log('Parsed deep link URL:', {
+          fullUrl: url,
+          code: code ? `${code.substring(0, 10)}...` : 'none',
+          state: state
+        });
+        
+        if (code) {
+          console.log('OAuth code received via deep link, navigating to callback handler');
+          
+          // Force a small delay to ensure app is fully ready
+          setTimeout(() => {
+            // Navigate to the OAuth callback route with the code
+            this.router.navigate(['/oauth-callback'], { 
+              queryParams: { code, state }
+            });
+          }, 500);
+        } else {
+          console.error('No code found in OAuth callback URL');
+          setTimeout(() => this.router.navigate(['/login']), 500);
+        }
+      } catch (e) {
+        console.error('Error parsing deep link URL:', e);
+        
+        // Extract code manually if URL parsing fails
+        try {
+          const codeMatch = url.match(/[?&]code=([^&]+)/);
+          if (codeMatch && codeMatch[1]) {
+            const code = codeMatch[1];
+            console.log('Extracted code using regex:', code.substring(0, 10) + '...');
+            setTimeout(() => {
+              this.router.navigate(['/oauth-callback'], { queryParams: { code } });
+            }, 500);
+            return;
+          }
+        } catch (regexError) {
+          console.error('Regex extraction failed:', regexError);
+        }
+        
+        // If all extraction methods fail, go back to login
+        setTimeout(() => this.router.navigate(['/login']), 500);
       }
     }
   }
