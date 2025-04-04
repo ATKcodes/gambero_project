@@ -155,7 +155,7 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/auth/42`, {
       token
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -192,7 +192,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/auth/user`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -201,7 +201,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/users/profile`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -209,7 +209,7 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/users/profile`, profileData, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -217,7 +217,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/users/profile/${userId}`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -225,7 +225,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/users/sellers`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -234,7 +234,7 @@ export class ApiService {
     return this.http.post(`${this.apiUrl}/jobs`, jobData, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -242,7 +242,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/jobs`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -250,7 +250,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/jobs/${jobId}`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -258,7 +258,7 @@ export class ApiService {
     return this.http.put(`${this.apiUrl}/jobs/${jobId}/assign`, {}, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -266,7 +266,7 @@ export class ApiService {
     return this.http.put(`${this.apiUrl}/jobs/${jobId}/complete`, {}, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -278,7 +278,7 @@ export class ApiService {
     }, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -286,7 +286,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/messages`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -294,7 +294,7 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/messages/${userId}`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -302,7 +302,7 @@ export class ApiService {
     return this.http.put(`${this.apiUrl}/messages/read/${userId}`, {}, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
@@ -310,18 +310,19 @@ export class ApiService {
     return this.http.get(`${this.apiUrl}/messages/unread/count`, {
       headers: this.getHeaders()
     }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
   // Enhanced error handling
-  private handleError(error: any): Observable<never> {
-    console.error('Request failed for ' + this.apiUrl + ':', error);
+  private handleError = (error: any): Observable<never> => {
+    let apiUrl = this.apiUrl || environment.apiUrl;
+    console.error('Request failed for ' + apiUrl + ':', error);
     let errorMessage = 'Unknown error occurred';
     
     if (error.status === 0) {
       // Connection refused or network error
-      errorMessage = `Cannot connect to server at ${this.apiUrl}. Please check that:
+      errorMessage = `Cannot connect to server at ${apiUrl}. Please check that:
       1. The backend server is running
       2. The server address in your environment configuration is correct
       3. Your network connection is stable`;
@@ -362,25 +363,25 @@ export class ApiService {
 
   get<T>(endpoint: string): Observable<T> {
     return this.http.get<T>(`${this.apiUrl}${endpoint}`, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
   post<T>(endpoint: string, data: any): Observable<T> {
     return this.http.post<T>(`${this.apiUrl}${endpoint}`, data, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
   put<T>(endpoint: string, data: any): Observable<T> {
     return this.http.put<T>(`${this.apiUrl}${endpoint}`, data, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
   delete<T>(endpoint: string): Observable<T> {
     return this.http.delete<T>(`${this.apiUrl}${endpoint}`, { headers: this.getHeaders() }).pipe(
-      catchError(this.handleError)
+      catchError(error => this.handleError(error))
     );
   }
 
