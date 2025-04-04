@@ -87,7 +87,8 @@
 			 {{ isLogin ? 'Login' : 'Register' }}
 		   </ion-button>
 		   
-		   <ion-button *ngIf="isLogin" expand="block" class="secondary-button" (click)="login42()" [disabled]="isSubmitting || apiStatus !== 'Connected'">
+		   <ion-button *ngIf="isLogin" expand="block" class="secondary-button" (click)="loginWith42()" [disabled]="isSubmitting || apiStatus !== 'Connected'">
+			 <img src="assets/icons/42_logo.svg" alt="42" class="button-icon" />
 			 Login with 42
 		   </ion-button>
 		   
