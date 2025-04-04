@@ -22,11 +22,6 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
-    path: 'main',
-    loadComponent: () => import('./pages/main/main.component').then(m => m.MainComponent),
-    canActivate: [AuthGuard]
-  },
-  {
     path: 'profile',
     loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent),
     canActivate: [AuthGuard]
@@ -34,7 +29,7 @@ export const routes: Routes = [
   {
     path: 'market',
     loadComponent: () => import('./pages/market/market.component').then(m => m.MarketComponent),
-    canActivate: [AuthGuard, MarketGuard]
+    canActivate: [AuthGuard]
   },
   {
     path: 'experts',
@@ -63,7 +58,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'login',
+    redirectTo: 'market',
     pathMatch: 'full'
   },
   {

@@ -102,14 +102,40 @@ router.get('/profile/:user_id', auth, async (req, res) => {
 router.get('/sellers', auth, async (req, res) => {
   try {
     // Find all users who are sellers
-    const sellerIds = await User.find({ userType: 'seller' }).select('_id');
+    const sellerUsers = await User.find({ userType: 'seller' }).select('-password');
     
-    // Find all profiles where user is in sellerIds
-    const profiles = await Profile.find({
-      user: { $in: sellerIds.map(seller => seller._id) }
-    });
+    // Create an array to hold the complete seller profiles
+    const sellerProfiles = [];
     
-    res.json(profiles);
+    // Loop through each seller user and get their seller-specific data
+    for (const user of sellerUsers) {
+      // Get the seller record
+      const seller = await Seller.findOne({ user: user._id });
+      
+      if (seller) {
+        // Get the profile if it exists
+        const profile = await Profile.findOne({ user: user._id });
+        
+        // Create a composite profile object
+        const sellerProfile = {
+          id: user._id,
+          userId: user._id,
+          name: user.fullName || user.username,
+          email: user.email,
+          role: 'seller',
+          profileImage: user.profileImage || 'assets/icons/tempura.png',
+          bio: profile?.bio || '',
+          expertise: seller.areasOfExpertise || [],
+          minimumPrice: seller.minimumPrice || 2,
+          isOnline: seller.isOnline || false,
+          createdAt: user.createdAt
+        };
+        
+        sellerProfiles.push(sellerProfile);
+      }
+    }
+    
+    res.json(sellerProfiles);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
