@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { IonCard, IonCardContent, 
-  IonItem, IonInput, IonRadioGroup, IonRadio, IonButton, ToastController } from '@ionic/angular/standalone';
+import { IonCard, IonCardContent, IonCardHeader, IonCardTitle, IonCardSubtitle,
+  IonItem, IonInput, IonRadioGroup, IonRadio, IonButton, IonIcon, IonItemDivider, IonLabel, ToastController } from '@ionic/angular/standalone';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
@@ -25,11 +25,17 @@ import { Platform } from '@ionic/angular';
     FormsModule,
     IonCard,
     IonCardContent,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
     IonItem,
     IonInput,
     IonRadioGroup,
     IonRadio,
-    IonButton
+    IonButton,
+    IonIcon,
+    IonItemDivider,
+    IonLabel
   ],
 })
 export class LoginComponent implements OnInit {
