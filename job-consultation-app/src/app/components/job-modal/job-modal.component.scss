@@ -1,0 +1,135 @@
+.modal-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+ion-textarea {
+  --padding-top: 12px;
+  --padding-bottom: 12px;
+  --padding-start: 12px;
+  --padding-end: 12px;
+}
+
+.price-display {
+  text-align: center;
+  margin: 10px 0 20px;
+  font-weight: 500;
+  color: var(--ion-color-medium);
+}
+
+.button-container {
+  margin-top: 20px;
+}
+
+// View mode styles
+.job-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  
+  h2 {
+    font-size: 22px;
+    margin: 0;
+    font-weight: 600;
+    flex: 1;
+  }
+}
+
+.status-badge {
+  padding: 5px 10px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  
+  &.open {
+    background-color: rgba(var(--ion-color-success-rgb), 0.15);
+    color: var(--ion-color-success);
+  }
+  
+  &.assigned {
+    background-color: rgba(var(--ion-color-warning-rgb), 0.15);
+    color: var(--ion-color-warning-shade);
+  }
+  
+  &.completed {
+    background-color: rgba(var(--ion-color-primary-rgb), 0.15);
+    color: var(--ion-color-primary);
+  }
+  
+  &.cancelled {
+    background-color: rgba(var(--ion-color-medium-rgb), 0.15);
+    color: var(--ion-color-medium-shade);
+  }
+}
+
+.job-details {
+  .job-description {
+    font-size: 16px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    white-space: pre-line;
+  }
+  
+  .meta-info {
+    background-color: rgba(var(--ion-color-light-rgb), 0.5);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    
+    .info-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+      
+      ion-icon {
+        font-size: 20px;
+        margin-right: 10px;
+        color: var(--ion-color-medium);
+      }
+      
+      span {
+        font-size: 14px;
+      }
+    }
+  }
+}
+
+.answer-section {
+  margin-top: 25px;
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--ion-color-primary);
+  }
+  
+  .answer-content {
+    background-color: rgba(var(--ion-color-light-rgb), 0.7);
+    padding: 15px;
+    border-radius: 8px;
+    white-space: pre-line;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+}
+
+.take-job-form {
+  margin-top: 25px;
+  border-top: 1px solid rgba(var(--ion-color-medium-rgb), 0.2);
+  padding-top: 20px;
+  
+  h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: var(--ion-color-primary);
+  }
+} 

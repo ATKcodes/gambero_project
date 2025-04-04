@@ -1,15 +1,16 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonicModule } from '@ionic/angular';
+import { IonicModule, ModalController } from '@ionic/angular';
 import { Router } from '@angular/router';
 import { UserService } from '../../services/user.service';
 import { JobRequest } from '../../services/user.service';
 import { AuthService } from '../../services/auth.service';
+import { JobModalComponent } from '../../components/job-modal/job-modal.component';
 
 @Component({
   selector: 'app-questions',
   standalone: true,
-  imports: [CommonModule, IonicModule],
+  imports: [CommonModule, IonicModule, JobModalComponent],
   templateUrl: './questions.component.html',
   styleUrl: './questions.component.scss'
 })
@@ -17,13 +18,12 @@ export class QuestionsComponent implements OnInit {
   questions: JobRequest[] = [];
   loading = true;
   error = false;
-  showQuestion = false;
-  selectedQuestion: JobRequest | null = null;
 
   constructor(
     private userService: UserService,
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    private modalCtrl: ModalController
   ) {}
 
   ngOnInit() {
@@ -48,41 +48,34 @@ export class QuestionsComponent implements OnInit {
     });
   }
 
-  viewQuestion(question: JobRequest) {
-    this.selectedQuestion = question;
-    this.showQuestion = true;
-  }
-
-  acceptQuestion(question: JobRequest) {
-    const sellerId = this.authService.currentUserValue?.id || '';
+  async viewQuestion(question: JobRequest) {
+    // Create a copy of the job to avoid modifying the original
+    const jobCopy = { ...question };
     
-    // Validate the job ID before making the API call
-    if (!question.id || question.id.startsWith('temp-')) {
-      console.error('Cannot accept question with invalid ID:', question);
-      this.showError('Cannot accept this question due to an invalid ID. Please try reloading the page.');
-      return;
+    // Ensure the job has an ID before opening modal
+    if (!jobCopy.id) {
+      console.error('Job is missing ID:', jobCopy);
+      
+      // Generate a temporary ID and warn the user
+      jobCopy.id = `temp-${Date.now()}`;
+      this.showError('Warning: This job has an invalid ID. Some operations may not work correctly.');
     }
     
-    console.log('Accepting question with ID:', question.id);
-    
-    this.userService.assignJobRequest(question.id, sellerId).subscribe({
-      next: (response) => {
-        console.log('Successfully accepted question:', response);
-        // Remove the question from the list or update its status
-        this.questions = this.questions.filter(q => q.id !== question.id);
-        this.showQuestion = false;
-        this.selectedQuestion = null;
-      },
-      error: (err) => {
-        console.error('Failed to accept question:', err);
-        this.showError(`Failed to accept question: ${err.message || 'Unknown error'}`);
+    const modal = await this.modalCtrl.create({
+      component: JobModalComponent,
+      componentProps: {
+        mode: 'view',
+        jobRequest: jobCopy
       }
     });
-  }
-
-  closeQuestion() {
-    this.showQuestion = false;
-    this.selectedQuestion = null;
+    
+    await modal.present();
+    
+    const { data } = await modal.onDidDismiss();
+    if (data) {
+      // Refresh the questions list
+      this.loadQuestions();
+    }
   }
 
   private showError(message: string) {
