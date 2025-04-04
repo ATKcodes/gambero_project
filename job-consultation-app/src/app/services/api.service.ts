@@ -1,8 +1,9 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, of, throwError, BehaviorSubject } from 'rxjs';
 import { catchError, tap, map, timeout, switchMap } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { ToastController } from '@ionic/angular';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +22,7 @@ export class ApiService {
   private currentApiUrlIndex = 0;
   public apiConnectivity = new BehaviorSubject<string>('Unknown');
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private injector: Injector) {
     console.log('ApiService initialized with URL:', this.apiUrl);
     this.checkConnectivity();
   }
@@ -314,32 +315,49 @@ export class ApiService {
   }
 
   // Enhanced error handling
-  private handleError(error: HttpErrorResponse) {
-    console.error('API Error:', error);
-    let errorMessage = 'An unknown error occurred';
+  private handleError(error: any): Observable<never> {
+    console.error('Request failed for ' + this.apiUrl + ':', error);
+    let errorMessage = 'Unknown error occurred';
     
-    if (error.error instanceof ErrorEvent) {
-      // Client-side error
-      errorMessage = `Client Error: ${error.error.message}`;
-      console.error('Client-side error:', error.error.message);
-    } else if (error.error && error.error.msg) {
-      // Server-side error with message
-      errorMessage = error.error.msg;
-      console.error('Server returned error:', error.error.msg);
-    } else if (error.status) {
-      // HTTP error
-      errorMessage = `HTTP Error ${error.status}: ${error.statusText}`;
-      console.error(`Server returned status code ${error.status}:`, error.statusText);
+    if (error.status === 0) {
+      // Connection refused or network error
+      errorMessage = `Cannot connect to server at ${this.apiUrl}. Please check that:
+      1. The backend server is running
+      2. The server address in your environment configuration is correct
+      3. Your network connection is stable`;
       
-      // Additional network debugging for specific status codes
-      if (error.status === 0) {
-        console.error('Network error - could not connect to server. Check CORS, server availability, and network connectivity.');
-      } else if (error.status === 404) {
-        console.error('API endpoint not found. Check if the URL is correct:', error.url);
-      }
+      // Show a toast if available
+      this.showConnectionError();
+    } else if (error.error && error.error.message) {
+      errorMessage = error.error.message;
+    } else if (error.message) {
+      errorMessage = error.message;
     }
     
     return throwError(() => new Error(errorMessage));
+  }
+  
+  private showConnectionError() {
+    // If we have a toast service, use it (or you can add one)
+    if (this.injector && this.injector.get(ToastController, null)) {
+      const toast = this.injector.get(ToastController);
+      toast.create({
+        message: 'Cannot connect to server. Is your backend running?',
+        duration: 5000,
+        position: 'bottom',
+        color: 'danger',
+        buttons: [
+          {
+            text: 'Retry',
+            role: 'cancel',
+            handler: () => {
+              // Attempt to check connectivity again
+              this.checkConnectivity();
+            }
+          }
+        ]
+      }).then(t => t.present());
+    }
   }
 
   get<T>(endpoint: string): Observable<T> {

@@ -229,7 +229,7 @@ class FtOAuthService {
     // Check if environment variables are set
     if (!process.env.FT_OAUTH_REDIRECT_URI) {
       console.error('CRITICAL ERROR: FT_OAUTH_REDIRECT_URI not configured in environment variables');
-      return 'http://localhost:4200/oauth/callback'; // Default fallback to help users
+      return 'http://localhost:4200/oauth-callback'; // Default fallback to help users
     }
     
     // Mobile app redirects may use a different URI scheme
