@@ -86,6 +86,18 @@ app.use((err, req, res, next) => {
   res.status(500).send({ error: 'Server Error', message: err.message });
 });
 
+// Print important configuration values on startup
+console.log('===== SERVER CONFIGURATION =====');
+console.log('NODE_ENV:', process.env.NODE_ENV || 'development');
+console.log('PORT:', process.env.PORT || 3000);
+console.log('MongoDB URI:', process.env.MONGO_URI ? '[CONFIGURED]' : '[NOT CONFIGURED]');
+console.log('42 OAuth Redirect URIs:');
+console.log('- Web:', process.env.FT_OAUTH_REDIRECT_URI || '[NOT CONFIGURED]');
+console.log('- Mobile:', process.env.FT_OAUTH_MOBILE_REDIRECT_URI || '[NOT CONFIGURED]');
+console.log('42 OAuth Client ID:', process.env.FORTYTWO_CLIENT_ID ? '[CONFIGURED]' : '[NOT CONFIGURED]');
+console.log('42 OAuth Client Secret:', process.env.FORTYTWO_CLIENT_SECRET ? '[CONFIGURED]' : '[NOT CONFIGURED]');
+console.log('================================');
+
 // Define PORT
 const PORT = process.env.PORT || 3000;
 

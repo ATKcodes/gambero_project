@@ -372,8 +372,28 @@ export class ApiService {
    */
   getOAuthConfigInfo(): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}/auth/oauth-info`).pipe(
+      tap(response => console.log('Retrieved OAuth config:', response)),
       catchError(error => {
         console.error('Error getting OAuth configuration:', error);
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Set temporary OAuth redirect URIs for troubleshooting
+   * @param webUri Web redirect URI
+   * @param mobileUri Mobile redirect URI
+   * @returns Observable with result
+   */
+  setOAuthRedirectUris(webUri: string, mobileUri: string): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/auth/oauth-info/set-uri`, {
+      webUri,
+      mobileUri
+    }).pipe(
+      tap(response => console.log('Set temporary OAuth URIs:', response)),
+      catchError(error => {
+        console.error('Error setting OAuth URIs:', error);
         return throwError(() => error);
       })
     );
