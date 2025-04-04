@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonicModule, ModalController, ToastController } from '@ionic/angular';
+import { IonicModule, ModalController, ToastController, NavController, AlertController } from '@ionic/angular';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
@@ -183,7 +183,10 @@ export class MarketComponent implements OnInit {
     public router: Router,
     private modalCtrl: ModalController,
     private route: ActivatedRoute,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private modalController: ModalController,
+    private navController: NavController,
+    private alertController: AlertController
   ) {}
   
   ngOnInit() {
@@ -430,15 +433,26 @@ export class MarketComponent implements OnInit {
     }
   }
 
-  async openChat(job: JobRequest) {
-    const modal = await this.modalCtrl.create({
+  /**
+   * Opens a chat modal for the selected job
+   * @param job The job to open chat for
+   */
+  async openChat(job: any) {
+    const modal = await this.modalController.create({
       component: ChatModalComponent,
       componentProps: {
         job: job
-      }
+      },
+      cssClass: 'chat-modal'
     });
     
     await modal.present();
+    
+    // Refresh jobs list after modal is dismissed
+    const { data } = await modal.onDidDismiss();
+    if (data && data.refresh) {
+      this.loadJobs();
+    }
   }
 
   segmentChanged() {

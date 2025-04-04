@@ -66,7 +66,17 @@ router.post('/register', async (req, res) => {
       { expiresIn: '7d' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token });
+        // Return token and basic user info including ID
+        res.json({ 
+          token,
+          user: {
+            _id: user._id,
+            id: user._id, // Include both formats for compatibility
+            username: user.username,
+            email: user.email,
+            userType: user.userType
+          }
+        });
       }
     );
     

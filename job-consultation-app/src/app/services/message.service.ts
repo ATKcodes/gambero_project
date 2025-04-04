@@ -10,6 +10,7 @@ export interface Message {
   content: string;
   timestamp: Date;
   read: boolean;
+  jobId?: string;
 }
 
 export interface Chat {
@@ -333,5 +334,59 @@ export class MessageService {
   private isUsingMockData(): boolean {
     // In a real app, you might check environment or configuration
     return !this.apiService;
+  }
+
+  /**
+   * Get messages for a specific job
+   * @param jobId The ID of the job to get messages for
+   * @returns Observable of Message array
+   */
+  getJobMessages(jobId: string): Observable<Message[]> {
+    return this.apiService.get(`/api/messages/job/${jobId}`).pipe(
+      map((response: any[]) => {
+        return response.map(msg => ({
+          id: msg._id,
+          senderId: msg.sender,
+          receiverId: msg.receiver,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+          read: msg.read,
+          jobId: msg.jobId
+        }));
+      }),
+      catchError(error => {
+        console.error('Error fetching job messages:', error);
+        return of([]);
+      })
+    );
+  }
+
+  /**
+   * Send a message in a job chat
+   * @param jobId The ID of the job
+   * @param content The message content
+   * @param receiverId The ID of the message recipient
+   * @returns Observable of the sent Message
+   */
+  sendJobMessage(jobId: string, content: string, receiverId: string): Observable<Message> {
+    return this.apiService.post('/api/messages/job', {
+      jobId,
+      content,
+      receiver: receiverId
+    }).pipe(
+      map((response: any) => ({
+        id: response._id,
+        senderId: response.sender,
+        receiverId: response.receiver,
+        content: response.content,
+        timestamp: new Date(response.timestamp),
+        read: response.read,
+        jobId: response.jobId
+      })),
+      catchError(error => {
+        console.error('Error sending job message:', error);
+        throw error;
+      })
+    );
   }
 } 

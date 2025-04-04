@@ -39,15 +39,23 @@ export class AuthService {
     return this.apiService.register(username, email, password, userType, fullName).pipe(
       tap(response => console.log('Register response:', response)),
       map(response => {
-        // Create user object with the token
+        // Create user object with the token and ensuring ID is present
         const user: User = {
-          id: response.user?.id || '',
+          id: response.user?._id || response.user?.id || '',
           username,
           email,
           userType,
           fullName,
           token: response.token
         };
+        
+        // Verify we have a user ID
+        if (!user.id) {
+          console.error('Registration returned user without ID:', response);
+          throw new Error('Registration failed: User ID not returned from server');
+        }
+        
+        console.log('User registered with ID:', user.id);
         
         // Store user in localStorage
         localStorage.setItem('user', JSON.stringify(user));
