@@ -133,13 +133,27 @@ export class LoginComponent implements OnInit {
     
     if (this.isLogin) {
       this.authService.login(this.email, this.password).subscribe({
-        next: () => {
+        next: (response) => {
           console.log('Login successful, navigating to market');
+          this.showToast('Login successful!', 'success');
           this.router.navigate(['/market']);
         },
         error: (err: Error) => {
           console.error('Login error:', err);
-          this.showToast(`Login failed: ${err.message}`);
+          
+          // Show user-friendly error messages
+          if (err.message.includes('Invalid credentials') || 
+              err.message.includes('401') ||
+              err.message.toLowerCase().includes('password')) {
+            this.showToast('Invalid email or password. Please try again.', 'danger');
+          } else if (err.message.includes('404')) {
+            this.showToast('User not found. Please check your email address.', 'danger');
+          } else if (err.message.includes('Network Error') || err.message.includes('Failed')) {
+            this.showToast('Connection error. Please check your internet connection.', 'warning');
+          } else {
+            this.showToast(`Login failed: ${err.message}`, 'danger');
+          }
+          
           this.isSubmitting = false;
         },
         complete: () => {
