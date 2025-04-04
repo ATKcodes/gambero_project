@@ -92,69 +92,6 @@
 			 Login with 42
 		   </ion-button>
 		   
-		   <ion-button expand="block" fill="outline" color="medium" (click)="showOAuthRedirectInfo()" class="ion-margin-top">
-			 <ion-icon name="information-circle-outline" slot="start"></ion-icon>
-			 Configure 42 OAuth (Fix Redirect URI)
-		   </ion-button>
-		   
-		   <ion-card *ngIf="showOAuthInfo && oauthRedirectUris" class="ion-margin-top">
-			 <ion-card-header>
-			   <ion-card-title>Fix "Redirect URI is not valid" Error</ion-card-title>
-			   <ion-card-subtitle>Add these URIs to your 42 OAuth App</ion-card-subtitle>
-			 </ion-card-header>
-			 <ion-card-content>
-			   <div class="uri-container">
-				 <h4>Web Redirect URI:</h4>
-				 <div class="uri-display">
-				   <code>{{ oauthRedirectUris.web }}</code>
-				   <ion-button size="small" fill="clear" (click)="copyToClipboard(oauthRedirectUris.web)">
-					 <ion-icon name="copy-outline"></ion-icon>
-				   </ion-button>
-				 </div>
-				 
-				 <h4>Mobile Redirect URI:</h4>
-				 <div class="uri-display">
-				   <code>{{ oauthRedirectUris.mobile }}</code>
-				   <ion-button size="small" fill="clear" (click)="copyToClipboard(oauthRedirectUris.mobile)">
-					 <ion-icon name="copy-outline"></ion-icon>
-				   </ion-button>
-				 </div>
-				 
-				 <div class="setup-instructions">
-				   <h5>How to fix:</h5>
-				   <ol>
-					 <li>Go to <a href="https://profile.intra.42.fr/oauth/applications" target="_blank">42 API Applications</a></li>
-					 <li>Find your app and click "Edit"</li>
-					 <li>Add <strong>both</strong> URIs to the "Redirect URI" field (one per line)</li>
-					 <li>Click "Submit" to save changes</li>
-				   </ol>
-				 </div>
-				 
-				 <ion-item-divider class="ion-margin-top">
-				   <ion-label>Advanced Troubleshooting</ion-label>
-				 </ion-item-divider>
-				 
-				 <div class="custom-uri-section">
-				   <p>If you are still having issues, try specifying custom redirect URIs:</p>
-				   
-				   <ion-item>
-					 <ion-label position="stacked">Custom Web Redirect URI</ion-label>
-					 <ion-input [(ngModel)]="customWebUri" placeholder="e.g., http://localhost:4200/auth/callback"></ion-input>
-				   </ion-item>
-				   
-				   <ion-item>
-					 <ion-label position="stacked">Custom Mobile Redirect URI</ion-label>
-					 <ion-input [(ngModel)]="customMobileUri" placeholder="e.g., com.jobconsultation.app://callback"></ion-input>
-				   </ion-item>
-				   
-				   <ion-button expand="block" class="ion-margin-top" (click)="setCustomRedirectUris()" [disabled]="!customWebUri && !customMobileUri">
-					 Save Custom URIs
-				   </ion-button>
-				 </div>
-			   </div>
-			 </ion-card-content>
-		   </ion-card>
-		   
 		   <ion-button expand="block" fill="clear" (click)="toggleMode()" class="toggle-button">
 			 {{ isLogin ? 'Need an account? Register' : 'Already have an account? Login' }}
 		   </ion-button>
