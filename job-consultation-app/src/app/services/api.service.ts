@@ -12,9 +12,9 @@ export class ApiService {
   
   // Fallback URLs in case the primary one doesn't work
   private apiUrls = [
-    environment.apiUrl,                   // Primary URL from environment
-    'http://localhost:3000/api',          // Using ADB reverse
+    'http://localhost:3000/api',          // Using ADB reverse - try first for mobile
     'http://10.0.2.2:3000/api',           // Android emulator special IP
+    environment.apiUrl,                   // URL from environment
     'http://172.27.98.140:3000/api',      // Direct IP
   ];
   
@@ -29,6 +29,15 @@ export class ApiService {
   // Check connectivity to the backend server
   checkConnectivity() {
     this.apiConnectivity.next('Checking...');
+    console.log('Checking connectivity to backend server...');
+    console.log('Current environment API URL:', environment.apiUrl);
+    console.log('Available fallback URLs:', this.apiUrls);
+    
+    // On mobile devices, attempt to use specific localhost formats 
+    if (typeof (window as any).Capacitor !== 'undefined') {
+      console.log('Running on Capacitor - will try mobile-specific connection methods');
+    }
+    
     this.tryNextApiUrl(0);
   }
 
