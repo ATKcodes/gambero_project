@@ -2,7 +2,7 @@
 
 ![Concept Design](Figma_JC.png)
 
-*This mockup represents the original concept I had in mind when starting to create this webapp. The design showcases the core user flows including user profiles, job posting/viewing, and the professional marketplace experience. The application has evolved from this initial concept while maintaining the fundamental user experience patterns visualized here.*
+*This mockup represents the original concept I had in mind when starting to create this webapp. The design showcases the core user flows including user profiles, job posting/viewing, and the professional marketplace experience. The application did not reach this state because of the time constraint, but that's what I was trying to reach.*
 
 A platform for connecting buyers with sellers for professional job consultations.
 
