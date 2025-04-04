@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import { ApiService } from './api.service';
 
@@ -95,8 +95,49 @@ export class UserService {
   }
 
   createJobRequest(job: Partial<JobRequest>): Observable<JobRequest> {
-    return this.apiService.post<JobRequest>('/jobs', job).pipe(
-      map(response => this.mapToJobRequest(response))
+    console.log('Creating job request with data:', job);
+    
+    // Clone the job object to avoid modifying the original
+    const jobToCreate = { ...job };
+    
+    return this.apiService.post<any>('/jobs', jobToCreate).pipe(
+      map(response => {
+        console.log('Response from job creation API:', response);
+        
+        // The backend might return the MongoDB document directly
+        // Make sure we handle MongoDB's _id format
+        if (response) {
+          // MongoDB returns either id or _id
+          if (response._id && !response.id) {
+            // If we have _id but no id, use _id
+            response.id = response._id;
+          } else if (!response._id && !response.id) {
+            // If neither exists, create a temp ID
+            response.id = `temp-${Date.now()}`;
+            console.error('Backend did not return a valid ID for the created job');
+          }
+          
+          // Make sure key fields are populated
+          if (!response.buyerId && response.buyer) {
+            response.buyerId = typeof response.buyer === 'string' ? response.buyer : response.buyer._id || response.buyer.id;
+          }
+          
+          // Ensure dates are properly formatted
+          if (response.createdAt && !(response.createdAt instanceof Date)) {
+            response.createdAt = new Date(response.createdAt);
+          }
+          
+          if (response.updatedAt && !(response.updatedAt instanceof Date)) {
+            response.updatedAt = new Date(response.updatedAt);
+          }
+        }
+        
+        return this.mapToJobRequest(response);
+      }),
+      catchError(error => {
+        console.error('Error creating job request:', error);
+        return throwError(() => error);
+      })
     );
   }
 
@@ -150,18 +191,56 @@ export class UserService {
   }
 
   private mapToJobRequest(data: any): JobRequest {
+    // Log the raw data for debugging
+    console.log('Raw job data from server:', data);
+    
+    // Check if the job data is valid
+    if (!data) {
+      console.error('Received null or undefined job data');
+      // Return a safe default job with a generated ID to prevent errors
+      return {
+        id: `temp-${Date.now()}`,
+        buyerId: '',
+        title: 'Error: Invalid Job',
+        description: 'This job has invalid data',
+        price: 0,
+        status: 'open',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+    }
+    
+    // Handle MongoDB document format (check both id and _id)
+    const jobId = data.id || (data._id ? (typeof data._id === 'object' ? data._id.toString() : data._id) : null);
+    
+    if (!jobId) {
+      console.error('Job is missing ID field:', data);
+    }
+    
+    // Handle buyer ID which can be an object or string in MongoDB
+    let buyerId = data.buyerId || '';
+    if (!buyerId && data.buyer) {
+      // If buyer is an object with _id, use that
+      if (typeof data.buyer === 'object' && data.buyer) {
+        buyerId = data.buyer._id || data.buyer.id || '';
+      } else {
+        // Otherwise assume it's a string ID
+        buyerId = data.buyer;
+      }
+    }
+    
     return {
-      id: data.id,
-      buyerId: data.buyerId,
-      sellerId: data.sellerId,
-      title: data.title,
-      description: data.description,
+      id: jobId || `temp-${Date.now()}`, // Generate a temporary ID if none exists
+      buyerId: buyerId,
+      sellerId: data.sellerId || (data.seller ? (typeof data.seller === 'object' ? data.seller._id || data.seller.id : data.seller) : undefined),
+      title: data.title || 'Untitled',
+      description: data.description || '',
       expertise: data.expertise,
-      price: data.price,
-      status: data.status,
+      price: typeof data.price === 'number' ? data.price : 0,
+      status: data.status || 'open',
       answer: data.answer,
-      createdAt: new Date(data.createdAt),
-      updatedAt: new Date(data.updatedAt)
+      createdAt: new Date(data.createdAt || Date.now()),
+      updatedAt: new Date(data.updatedAt || Date.now())
     };
   }
 } 

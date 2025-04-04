@@ -56,8 +56,18 @@ export class QuestionsComponent implements OnInit {
   acceptQuestion(question: JobRequest) {
     const sellerId = this.authService.currentUserValue?.id || '';
     
+    // Validate the job ID before making the API call
+    if (!question.id || question.id.startsWith('temp-')) {
+      console.error('Cannot accept question with invalid ID:', question);
+      this.showError('Cannot accept this question due to an invalid ID. Please try reloading the page.');
+      return;
+    }
+    
+    console.log('Accepting question with ID:', question.id);
+    
     this.userService.assignJobRequest(question.id, sellerId).subscribe({
-      next: () => {
+      next: (response) => {
+        console.log('Successfully accepted question:', response);
         // Remove the question from the list or update its status
         this.questions = this.questions.filter(q => q.id !== question.id);
         this.showQuestion = false;
@@ -65,6 +75,7 @@ export class QuestionsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Failed to accept question:', err);
+        this.showError(`Failed to accept question: ${err.message || 'Unknown error'}`);
       }
     });
   }
@@ -72,5 +83,25 @@ export class QuestionsComponent implements OnInit {
   closeQuestion() {
     this.showQuestion = false;
     this.selectedQuestion = null;
+  }
+
+  private showError(message: string) {
+    // Create an error element and add it to the page
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `<p>${message}</p>`;
+    errorDiv.style.color = 'white';
+    errorDiv.style.backgroundColor = 'var(--ion-color-danger)';
+    errorDiv.style.padding = '10px';
+    errorDiv.style.margin = '10px';
+    errorDiv.style.borderRadius = '5px';
+    
+    // Add it to the page
+    document.querySelector('ion-content')?.appendChild(errorDiv);
+    
+    // Remove it after 5 seconds
+    setTimeout(() => {
+      errorDiv.remove();
+    }, 5000);
   }
 }
