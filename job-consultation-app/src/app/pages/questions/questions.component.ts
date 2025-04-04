@@ -10,7 +10,7 @@ import { JobModalComponent } from '../../components/job-modal/job-modal.componen
 @Component({
   selector: 'app-questions',
   standalone: true,
-  imports: [CommonModule, IonicModule, JobModalComponent],
+  imports: [CommonModule, IonicModule],
   templateUrl: './questions.component.html',
   styleUrl: './questions.component.scss'
 })
