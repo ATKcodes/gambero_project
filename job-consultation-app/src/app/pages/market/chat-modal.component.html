@@ -32,10 +32,10 @@
            [ngClass]="{'message': true, 'my-message': message.senderId === currentUserId, 'other-message': message.senderId !== currentUserId}">
         <div class="message-bubble">
           <div class="message-info">
-            <span class="sender-name">{{ message.senderName }}</span>
+            <span class="sender-name">{{ message.senderId === currentUserId ? 'You' : 'User' }}</span>
             <span class="message-time">{{ message.timestamp | date:'short' }}</span>
           </div>
-          <div class="message-text">{{ message.text }}</div>
+          <div class="message-text">{{ message.content }}</div>
         </div>
       </div>
     </div>
