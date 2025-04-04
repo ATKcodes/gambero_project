@@ -59,6 +59,7 @@ export interface JobRequest {
   expertise?: string;
   price: number;
   status: 'open' | 'assigned' | 'completed' | 'cancelled';
+  answer?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -99,8 +100,8 @@ export class UserService {
     );
   }
 
-  assignJobRequest(jobId: string, sellerId: string): Observable<JobRequest> {
-    return this.apiService.put<JobRequest>(`/jobs/${jobId}/assign`, { sellerId }).pipe(
+  assignJobRequest(jobId: string, sellerId: string, answer?: string): Observable<JobRequest> {
+    return this.apiService.put<JobRequest>(`/jobs/${jobId}/assign`, { sellerId, answer }).pipe(
       map(response => this.mapToJobRequest(response))
     );
   }
@@ -158,6 +159,7 @@ export class UserService {
       expertise: data.expertise,
       price: data.price,
       status: data.status,
+      answer: data.answer,
       createdAt: new Date(data.createdAt),
       updatedAt: new Date(data.updatedAt)
     };

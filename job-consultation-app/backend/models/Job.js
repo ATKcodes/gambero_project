@@ -30,6 +30,9 @@ const JobSchema = new mongoose.Schema({
     enum: ['open', 'assigned', 'completed', 'cancelled'],
     default: 'open'
   },
+  answer: {
+    type: String
+  },
   createdAt: {
     type: Date,
     default: Date.now
