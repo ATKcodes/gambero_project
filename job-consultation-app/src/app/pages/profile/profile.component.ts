@@ -42,7 +42,7 @@ export class ProfileComponent implements OnInit {
   credit = 0;
   minimumPrice = 2; // Default minimum price is 2€
   areasOfExpertise: string[] = [];
-  availableExpertiseAreas = ['Pastry', 'Meat and fishes', 'Vegetarian', 'Wines'];
+  availableExpertiseAreas = ['Pastry', 'Vegetarian', 'Italian', 'Meats and fishes', 'Wines'];
   
   // JSONPlaceholder API
   jsonPlaceholderUrl = 'https://jsonplaceholder.typicode.com';
