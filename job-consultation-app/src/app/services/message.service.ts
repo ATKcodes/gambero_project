@@ -342,8 +342,8 @@ export class MessageService {
    * @returns Observable of Message array
    */
   getJobMessages(jobId: string): Observable<Message[]> {
-    return this.apiService.get(`/api/messages/job/${jobId}`).pipe(
-      map((response: any[]) => {
+    return this.apiService.get<any[]>(`/api/messages/job/${jobId}`).pipe(
+      map(response => {
         return response.map(msg => ({
           id: msg._id,
           senderId: msg.sender,
@@ -369,12 +369,12 @@ export class MessageService {
    * @returns Observable of the sent Message
    */
   sendJobMessage(jobId: string, content: string, receiverId: string): Observable<Message> {
-    return this.apiService.post('/api/messages/job', {
+    return this.apiService.post<any>('/api/messages/job', {
       jobId,
       content,
       receiver: receiverId
     }).pipe(
-      map((response: any) => ({
+      map(response => ({
         id: response._id,
         senderId: response.sender,
         receiverId: response.receiver,
