@@ -1,0 +1,59 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <span class="job-title">{{ job?.title }}</span>
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="chat-content">
+  <!-- Job Details Section -->
+  <div class="job-details">
+    <div class="question-container">
+      <h4>Original Question:</h4>
+      <p>{{ job?.description }}</p>
+    </div>
+    
+    <div class="answer-container" *ngIf="job?.answer">
+      <h4>Your Answer:</h4>
+      <p>{{ job?.answer }}</p>
+    </div>
+  </div>
+
+  <!-- Chat Messages -->
+  <div class="chat-container">
+    <div class="message-list" #messageList>
+      <div *ngFor="let message of messages" 
+           [ngClass]="{'message': true, 'my-message': message.senderId === currentUserId, 'other-message': message.senderId !== currentUserId}">
+        <div class="message-bubble">
+          <div class="message-info">
+            <span class="sender-name">{{ message.senderName }}</span>
+            <span class="message-time">{{ message.timestamp | date:'short' }}</span>
+          </div>
+          <div class="message-text">{{ message.text }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <div class="input-container">
+      <ion-input 
+        placeholder="Type a message..." 
+        [(ngModel)]="newMessage" 
+        (keyup.enter)="sendMessage()"
+        class="message-input">
+      </ion-input>
+      <ion-button (click)="sendMessage()" [disabled]="!newMessage.trim()">
+        <ion-icon name="send"></ion-icon>
+      </ion-button>
+    </div>
+  </ion-toolbar>
+</ion-footer> 

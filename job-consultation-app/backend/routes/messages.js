@@ -182,4 +182,65 @@ router.get('/unread/count', auth, async (req, res) => {
   }
 });
 
+// @route   POST api/messages/job
+// @desc    Send a message related to a job
+// @access  Private
+router.post('/job', auth, async (req, res) => {
+  const { jobId, receiver, content } = req.body;
+  
+  if (!content) {
+    return res.status(400).json({ msg: 'Message content is required' });
+  }
+
+  if (!jobId) {
+    return res.status(400).json({ msg: 'Job ID is required' });
+  }
+  
+  try {
+    // Verify receiver exists
+    const receiverUser = await User.findById(receiver);
+    if (!receiverUser) {
+      return res.status(404).json({ msg: 'Receiver not found' });
+    }
+    
+    const newMessage = new Message({
+      sender: req.user.id,
+      receiver,
+      content,
+      jobId,
+      read: false
+    });
+    
+    const message = await newMessage.save();
+    
+    // Populate sender and receiver details
+    await message.populate('sender', 'username');
+    await message.populate('receiver', 'username');
+    
+    res.json(message);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
+// @route   GET api/messages/job/:jobId
+// @desc    Get all messages for a specific job
+// @access  Private
+router.get('/job/:jobId', auth, async (req, res) => {
+  try {
+    const messages = await Message.find({
+      jobId: req.params.jobId
+    })
+      .sort({ timestamp: 1 })
+      .populate('sender', 'username profileImage')
+      .populate('receiver', 'username profileImage');
+    
+    res.json(messages);
+  } catch (err) {
+    console.error(err.message);
+    res.status(500).send('Server error');
+  }
+});
+
 module.exports = router; 

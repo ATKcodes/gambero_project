@@ -6,7 +6,6 @@ class FtOAuthService {
   constructor() {
     this.clientId = process.env.FORTYTWO_CLIENT_ID || '';
     this.clientSecret = process.env.FORTYTWO_CLIENT_SECRET || '';
-    this.redirectUri = process.env.FORTYTWO_CALLBACK_URL || 'http://localhost:4200/oauth-callback';
     this.tokenUrl = 'https://api.intra.42.fr/oauth/token';
     this.userInfoUrl = 'https://api.intra.42.fr/v2/me';
     
@@ -21,10 +20,8 @@ class FtOAuthService {
   getAuthorizationUrl(isMobile = false) {
     console.log('Generating 42 OAuth URL for', isMobile ? 'mobile device' : 'web browser');
     
-    // For mobile, use the custom URL scheme
-    const redirectUri = isMobile ? 
-      'com.jobconsultation.app://oauth-callback' : 
-      this.redirectUri;
+    // Get the appropriate redirect URI
+    const redirectUri = this.getCallbackUrl(isMobile);
     
     // OAuth state to verify the request when it returns
     const state = Math.random().toString(36).substring(2, 15);
@@ -45,12 +42,16 @@ class FtOAuthService {
   /**
    * Exchange authorization code for an access token
    * @param {string} code The authorization code
+   * @param {boolean} isMobile Whether the request is from a mobile device
    * @returns {Promise<string>} The access token
    */
-  async getAccessToken(code) {
+  async getAccessToken(code, isMobile = false) {
     try {
       console.log('Exchanging code for access token...');
-      console.log('Using redirect URI:', this.redirectUri);
+      
+      // Get the appropriate redirect URI based on the device type
+      const redirectUri = this.getCallbackUrl(isMobile);
+      console.log('Using redirect URI:', redirectUri);
       console.log('Client ID available:', !!this.clientId);
       console.log('Client Secret available:', !!this.clientSecret);
       
@@ -66,14 +67,14 @@ class FtOAuthService {
       params.append('client_id', this.clientId);
       params.append('client_secret', this.clientSecret);
       params.append('code', code);
-      params.append('redirect_uri', this.redirectUri);
+      params.append('redirect_uri', redirectUri);
       
       console.log('Token request data:', {
         grant_type: 'authorization_code',
         client_id: this.clientId.substring(0, 10) + '...',
         client_secret: '***redacted***',
         code: code.substring(0, 10) + '...',
-        redirect_uri: this.redirectUri
+        redirect_uri: redirectUri
       });
       
       // Follow 42 API OAuth specification exactly
@@ -164,14 +165,36 @@ class FtOAuthService {
         console.log('User found with 42 ID:', userData.id);
       }
       
+      // Ensure ID field is populated for later use
+      const userObj = user.toObject();
+      if (!userObj.id) {
+        userObj.id = user._id.toString();
+      }
+      
+      console.log('User ID verified:', userObj.id || user._id);
+      
       return {
-        user,
+        user: userObj,
         isNewUser
       };
     } catch (error) {
       console.error('Error finding or creating user:', error);
       throw new Error('Failed to process user data');
     }
+  }
+
+  /**
+   * Get the callback URL, accounting for mobile vs web
+   * @param {boolean} isMobile Whether this is for a mobile app
+   * @returns {string} The appropriate callback URL
+   */
+  getCallbackUrl(isMobile = false) {
+    const callbackUrl = isMobile 
+      ? process.env.FT_OAUTH_MOBILE_REDIRECT_URI || process.env.FT_OAUTH_REDIRECT_URI 
+      : process.env.FT_OAUTH_REDIRECT_URI;
+    
+    console.log('Using callback URL for', isMobile ? 'mobile' : 'web', ':', callbackUrl);
+    return callbackUrl;
   }
 }
 
