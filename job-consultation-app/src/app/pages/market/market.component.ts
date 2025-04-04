@@ -9,161 +9,12 @@ import { User } from '../../models/user.model';
 import { UserService, UserProfile, JobRequest } from '../../services/user.service';
 import { ActivatedRoute } from '@angular/router';
 import { ChatModalComponent } from './chat-modal.component';
-
-@Component({
-  selector: 'app-job-modal',
-  standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
-  templateUrl: './market-modal.html', 
-})
-export class JobModalComponent implements OnInit {
-  mode: 'create' | 'view' = 'create';
-  jobRequest: Partial<JobRequest> = {
-    price: 5 // Set default price
-  };
-  canTakeJob = false;
-  jobAnswer: string = '';
-  
-  constructor(
-    public modalCtrl: ModalController,
-    private userService: UserService,
-    private authService: AuthService,
-    private toastCtrl: ToastController
-  ) {}
-  
-  ngOnInit() {
-    console.log('Job modal initialized with job:', this.jobRequest);
-    
-    // Ensure the job has all required properties
-    if (this.mode === 'view' && (!this.jobRequest || !this.jobRequest.id)) {
-      console.error('Invalid job object in modal:', this.jobRequest);
-      this.showToast('Error: Invalid job data');
-      setTimeout(() => this.modalCtrl.dismiss(), 2000);
-      return;
-    }
-    
-    const currentUser = this.authService.getUser();
-    const userType = this.authService.getUserType();
-    
-    console.log('Current user type:', userType);
-    console.log('Job status:', this.jobRequest.status);
-    
-    // Properly set canTakeJob flag - sellers can take open jobs
-    if (this.mode === 'view' && 
-        userType === 'seller' && 
-        this.jobRequest && 
-        this.jobRequest.status === 'open') {
-      console.log('Can take job set to true');
-      this.canTakeJob = true;
-    } else {
-      console.log('Can take job set to false');
-      this.canTakeJob = false;
-    }
-  }
-  
-  saveJob() {
-    const currentUser = this.authService.getUser();
-    
-    if (!currentUser) {
-      this.showToast('Please log in to post a job');
-      return;
-    }
-    
-    if (!this.jobRequest.title || !this.jobRequest.description) {
-      this.showToast('Please fill in all required fields');
-      return;
-    }
-    
-    // Ensure we have at least the minimal required fields
-    const newJob: Partial<JobRequest> = {
-      title: this.jobRequest.title,
-      description: this.jobRequest.description,
-      buyerId: currentUser.id,
-      status: 'open',
-      expertise: this.jobRequest.expertise,
-      price: this.jobRequest.price || 5, // Default price if not specified
-    };
-    
-    console.log('Creating new job:', newJob);
-    this.userService.createJobRequest(newJob).subscribe({
-      next: (job) => {
-        console.log('Job created successfully:', job);
-        
-        // Verify the job has a valid ID
-        if (!job.id || job.id.startsWith('temp-')) {
-          console.error('Server returned job without a valid ID:', job);
-          this.showToast('Warning: Question created, but the server did not return a valid ID.');
-          
-          // Create a temporary ID if needed
-          if (!job.id) {
-            job.id = `temp-${Date.now()}`;
-          }
-        }
-        
-        this.showToast('Question posted successfully');
-        this.modalCtrl.dismiss(job);
-      },
-      error: (err) => {
-        console.error('Error posting question:', err);
-        this.showToast('Error posting question: ' + (err.message || 'Unknown error'));
-      }
-    });
-  }
-  
-  takeJob() {
-    const currentUser = this.authService.getUser();
-    
-    if (!currentUser) {
-      this.showToast('Please log in to accept a job');
-      return;
-    }
-    
-    if (!this.jobRequest || !this.jobRequest.id) {
-      console.error('Missing job ID:', this.jobRequest);
-      this.showToast('Invalid job request');
-      return;
-    }
-    
-    // Validate the job ID before making the API call
-    if (this.jobRequest.id.startsWith('temp-')) {
-      console.error('Cannot accept job with temporary ID:', this.jobRequest);
-      this.showToast('Error: This job has an invalid ID. Please try reloading the page.');
-      return;
-    }
-
-    if (!this.jobAnswer || this.jobAnswer.trim() === '') {
-      this.showToast('Please provide an answer to the question');
-      return;
-    }
-    
-    console.log('Taking job with ID:', this.jobRequest.id);
-    this.userService.assignJobRequest(this.jobRequest.id, currentUser.id, this.jobAnswer).subscribe({
-      next: (job) => {
-        console.log('Job accepted successfully:', job);
-        this.showToast('Job accepted successfully');
-        this.modalCtrl.dismiss({...job, answer: this.jobAnswer});
-      },
-      error: (err) => {
-        console.error('Error accepting job:', err);
-        this.showToast('Error accepting job: ' + (err.message || 'Unknown error'));
-      }
-    });
-  }
-  
-  async showToast(message: string) {
-    const toast = await this.toastCtrl.create({
-      message,
-      duration: 3000,
-      position: 'top'
-    });
-    await toast.present();
-  }
-}
+import { JobModalComponent } from '../../components/job-modal/job-modal.component';
 
 @Component({
   selector: 'app-market',
   standalone: true,
-  imports: [IonicModule, CommonModule, FormsModule],
+  imports: [IonicModule, CommonModule, FormsModule, JobModalComponent, ChatModalComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   templateUrl: './market.html',
   styleUrls: ['./market.scss'],
@@ -196,6 +47,8 @@ export class MarketComponent implements OnInit {
     this.route.queryParams.subscribe(params => {
       const code = params['code'];
       const token = params['token'];
+      const createJobParam = params['createJob'];
+      const expertId = params['expertId'];
       
       // If we have a code but no token, we need to exchange it for a token
       if (code && !token) {
@@ -237,6 +90,15 @@ export class MarketComponent implements OnInit {
           });
           return;
         }
+      }
+      
+      // If createJob parameter is present, open the job creation modal
+      if (createJobParam === 'true' && expertId) {
+        console.log('Market component detected createJob=true and expertId in URL, opening job creation modal');
+        // Wait for component to initialize first
+        setTimeout(() => {
+          this.createJobForExpert(expertId);
+        }, 500);
       }
     });
     
@@ -354,6 +216,79 @@ export class MarketComponent implements OnInit {
         this.loadJobs();
       }
     }
+  }
+  
+  async createJobForExpert(expertId: string) {
+    console.log('Opening create job modal for expert ID:', expertId);
+    
+    // Ensure we have a logged-in user before proceeding
+    if (!this.user || !this.user.id) {
+      const toast = await this.toastCtrl.create({
+        message: 'Please log in to post a question',
+        duration: 3000,
+        position: 'top'
+      });
+      await toast.present();
+      return;
+    }
+    
+    // First, try to get expert details to prefill the modal
+    this.userService.getProfile(expertId).subscribe({
+      next: async (expert: UserProfile) => {
+        const modal = await this.modalCtrl.create({
+          component: JobModalComponent,
+          componentProps: {
+            mode: 'create',
+            // Set the buyer ID to ensure it's properly linked to the user
+            jobRequest: {
+              price: 5,
+              buyerId: this.user?.id,
+              sellerId: expertId,  // Pre-assign to the expert
+              status: 'open',
+              expertise: expert.expertise ? [expert.expertise[0]] : []  // Use the expert's first expertise area if available
+            },
+            expertName: expert.name || 'Selected Expert'
+          }
+        });
+        
+        await modal.present();
+        
+        const { data } = await modal.onDidDismiss();
+        if (data) {
+          console.log('Job created for expert:', data);
+          // Verify the job has an ID before proceeding
+          if (!data.id) {
+            console.error('Created job is missing an ID:', data);
+            const toast = await this.toastCtrl.create({
+              message: 'Error: Created job is missing an ID. Please try again.',
+              duration: 3000,
+              position: 'top'
+            });
+            await toast.present();
+          }
+        }
+      },
+      error: async (err: Error) => {
+        console.error('Failed to get expert details:', err);
+        
+        // Fall back to creating a job without expert details
+        const modal = await this.modalCtrl.create({
+          component: JobModalComponent,
+          componentProps: {
+            mode: 'create',
+            jobRequest: {
+              price: 5,
+              buyerId: this.user?.id,
+              sellerId: expertId,
+              status: 'open'
+            },
+            expertName: 'Selected Expert'
+          }
+        });
+        
+        await modal.present();
+      }
+    });
   }
   
   async viewJob(job: JobRequest) {

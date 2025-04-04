@@ -1,0 +1,120 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>{{ mode === 'create' ? 'Post a New Question' : 'Question Details' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <div class="modal-content">
+    <!-- Create Mode -->
+    <div *ngIf="mode === 'create'">
+      <ion-item>
+        <ion-label position="floating">Question Title</ion-label>
+        <ion-input [(ngModel)]="jobRequest.title" placeholder="Enter a clear title for your question"></ion-input>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label position="floating">Description</ion-label>
+        <ion-textarea
+          [(ngModel)]="jobRequest.description"
+          rows="6"
+          placeholder="Describe your question in detail. What are you trying to solve? Include any relevant information."
+        ></ion-textarea>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label position="floating">Expertise Areas (optional)</ion-label>
+        <ion-input [(ngModel)]="jobRequest.expertise" placeholder="e.g. JavaScript, Angular, API"></ion-input>
+      </ion-item>
+      
+      <ion-item>
+        <ion-label>Price</ion-label>
+        <ion-range
+          [(ngModel)]="jobRequest.price"
+          min="5"
+          max="100"
+          step="5"
+          pin="true"
+          snaps="true"
+        >
+          <ion-label slot="start">5</ion-label>
+          <ion-label slot="end">100</ion-label>
+        </ion-range>
+      </ion-item>
+      <div class="price-display">
+        Selected Price: {{jobRequest.price}} credits
+      </div>
+      
+      <div class="button-container">
+        <ion-button expand="block" (click)="saveJob()">Post Question</ion-button>
+      </div>
+    </div>
+    
+    <!-- View Mode -->
+    <div *ngIf="mode === 'view'">
+      <div class="job-header">
+        <h2>{{jobRequest.title}}</h2>
+        <div class="status-badge" [ngClass]="jobRequest.status">
+          {{jobRequest.status}}
+        </div>
+      </div>
+      
+      <div class="job-details">
+        <p class="job-description">{{jobRequest.description}}</p>
+        
+        <div class="meta-info">
+          <div class="info-row">
+            <ion-icon name="pricetag-outline"></ion-icon>
+            <span>Price: {{jobRequest.price}} credits</span>
+          </div>
+          
+          <div class="info-row" *ngIf="jobRequest.expertise && jobRequest.expertise.length > 0">
+            <ion-icon name="briefcase-outline"></ion-icon>
+            <span>Expertise: {{jobRequest.expertise.join(', ')}}</span>
+          </div>
+          
+          <div class="info-row" *ngIf="expertName">
+            <ion-icon name="person-outline"></ion-icon>
+            <span>Expert: {{expertName}}</span>
+          </div>
+          
+          <div class="info-row" *ngIf="jobRequest.createdAt">
+            <ion-icon name="time-outline"></ion-icon>
+            <span>Posted: {{jobRequest.createdAt | date:'medium'}}</span>
+          </div>
+        </div>
+        
+        <!-- Job Answer Section -->
+        <div class="answer-section" *ngIf="jobRequest.status === 'completed' && jobRequest.answer">
+          <h3>Expert's Answer</h3>
+          <div class="answer-content">
+            {{jobRequest.answer}}
+          </div>
+        </div>
+        
+        <!-- Take Job Form for Sellers -->
+        <div class="take-job-form" *ngIf="canTakeJob">
+          <h3>Provide an Answer</h3>
+          <ion-item>
+            <ion-textarea
+              [(ngModel)]="jobAnswer"
+              rows="6"
+              placeholder="Enter your detailed answer to this question..."
+            ></ion-textarea>
+          </ion-item>
+          
+          <div class="button-container">
+            <ion-button expand="block" (click)="takeJob()" [disabled]="!jobAnswer">
+              Submit Answer
+            </ion-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content> 

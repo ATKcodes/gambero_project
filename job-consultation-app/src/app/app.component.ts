@@ -5,6 +5,20 @@ import { Platform } from '@ionic/angular';
 import { environment } from '../environments/environment';
 import { Router } from '@angular/router';
 import { App, URLOpenListenerEvent } from '@capacitor/app';
+import { addIcons } from 'ionicons';
+import { 
+  chatbubbleOutline, 
+  eyeOutline, 
+  searchOutline, 
+  alertCircleOutline, 
+  createOutline,
+  personOutline,
+  mailOutline,
+  callOutline,
+  logoLinkedin,
+  globeOutline,
+  informationCircleOutline
+} from 'ionicons/icons';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +32,21 @@ export class AppComponent implements OnInit {
     private platform: Platform,
     private router: Router
   ) {
+    // Register Ionicons
+    addIcons({
+      'chatbubble-outline': chatbubbleOutline,
+      'eye-outline': eyeOutline,
+      'search-outline': searchOutline,
+      'alert-circle-outline': alertCircleOutline,
+      'create-outline': createOutline,
+      'person-outline': personOutline,
+      'mail-outline': mailOutline,
+      'call-outline': callOutline,
+      'logo-linkedin': logoLinkedin,
+      'globe-outline': globeOutline,
+      'information-circle-outline': informationCircleOutline
+    });
+    
     this.initializeApp();
   }
   
