@@ -45,6 +45,8 @@ export class LoginComponent implements OnInit {
   showLoading = false;
   oauthRedirectUris: { web: string, mobile: string } | null = null;
   showOAuthInfo = false;
+  customWebUri: string = '';
+  customMobileUri: string = '';
 
   constructor(
     private authService: AuthService,
@@ -212,32 +214,71 @@ export class LoginComponent implements OnInit {
     });
   }
   
+  /**
+   * Retrieves and displays OAuth configuration information
+   */
   showOAuthRedirectInfo() {
     this.showOAuthInfo = true;
-    this.showLoading = true;
+    this.isSubmitting = true;
     
     this.apiService.getOAuthConfigInfo().subscribe({
       next: (info) => {
+        console.log('Received OAuth config:', info);
         this.oauthRedirectUris = {
           web: info.webRedirectUri,
           mobile: info.mobileRedirectUri
         };
-        this.showLoading = false;
+        this.isSubmitting = false;
       },
       error: (err) => {
         console.error('Error getting OAuth config:', err);
         this.showToast('Could not retrieve OAuth configuration', 'danger');
-        this.showLoading = false;
+        this.isSubmitting = false;
       }
     });
   }
-
+  
+  /**
+   * Copies text to clipboard
+   */
   copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(() => {
       this.showToast('Copied to clipboard', 'success');
     }).catch(err => {
       console.error('Could not copy text: ', err);
       this.showToast('Failed to copy to clipboard', 'danger');
+    });
+  }
+
+  /**
+   * Set custom redirect URIs for OAuth troubleshooting
+   */
+  setCustomRedirectUris() {
+    if (!this.customWebUri && !this.customMobileUri) {
+      this.showToast('Please enter at least one URI', 'warning');
+      return;
+    }
+    
+    this.isSubmitting = true;
+    this.apiService.setOAuthRedirectUris(this.customWebUri, this.customMobileUri).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.showToast('Custom redirect URIs set successfully', 'success');
+          // Update the displayed URIs
+          this.oauthRedirectUris = {
+            web: response.webRedirectUri !== '[Not changed]' ? response.webRedirectUri : this.oauthRedirectUris?.web || '',
+            mobile: response.mobileRedirectUri !== '[Not changed]' ? response.mobileRedirectUri : this.oauthRedirectUris?.mobile || ''
+          };
+        } else {
+          this.showToast('Failed to set custom URIs: ' + response.message, 'danger');
+        }
+        this.isSubmitting = false;
+      },
+      error: (err) => {
+        console.error('Error setting custom URIs:', err);
+        this.showToast('Error setting custom URIs', 'danger');
+        this.isSubmitting = false;
+      }
     });
   }
 } 

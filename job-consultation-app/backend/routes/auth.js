@@ -405,4 +405,49 @@ router.get('/oauth-info', async (req, res) => {
   }
 });
 
+// @route   POST api/auth/oauth-info/set-uri
+// @desc    Set temporary OAuth redirect URIs for troubleshooting
+// @access  Public (but not available in production)
+router.post('/oauth-info/set-uri', async (req, res) => {
+  if (process.env.NODE_ENV === 'production') {
+    return res.status(403).json({ 
+      success: false, 
+      message: 'This endpoint is not available in production' 
+    });
+  }
+  
+  try {
+    const { webUri, mobileUri } = req.body;
+    
+    if (!webUri && !mobileUri) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'At least one URI must be provided' 
+      });
+    }
+    
+    const success = ftOAuthService.setTemporaryRedirectUris(webUri, mobileUri);
+    
+    if (success) {
+      res.json({
+        success: true,
+        webRedirectUri: webUri || '[Not changed]',
+        mobileRedirectUri: mobileUri || '[Not changed]',
+        message: 'Temporary redirect URIs set successfully'
+      });
+    } else {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to set temporary redirect URIs'
+      });
+    }
+  } catch (err) {
+    console.error('Error setting OAuth URIs:', err);
+    res.status(500).json({
+      success: false,
+      message: 'Server error'
+    });
+  }
+});
+
 module.exports = router; 

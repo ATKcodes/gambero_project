@@ -184,15 +184,52 @@ class FtOAuthService {
   }
 
   /**
+   * Set temporary custom OAuth redirect URIs (for troubleshooting)
+   * Should only be used for debugging, not in production
+   * @param {string} webUri Web redirect URI
+   * @param {string} mobileUri Mobile redirect URI
+   */
+  setTemporaryRedirectUris(webUri, mobileUri) {
+    if (process.env.NODE_ENV === 'production') {
+      console.warn('Attempted to set temporary redirect URIs in production - ignoring');
+      return false;
+    }
+
+    this._temporaryWebRedirectUri = webUri || null;
+    this._temporaryMobileRedirectUri = mobileUri || null;
+    
+    console.log('Temporary redirect URIs set:');
+    console.log('- Web:', this._temporaryWebRedirectUri || '[Not set]');
+    console.log('- Mobile:', this._temporaryMobileRedirectUri || '[Not set]');
+    
+    return true;
+  }
+
+  /**
    * Get the callback URL, accounting for mobile vs web
    * @param {boolean} isMobile Whether this is for a mobile app
    * @returns {string} The appropriate callback URL
    */
   getCallbackUrl(isMobile = false) {
+    // Check if we have temporary URIs for troubleshooting
+    if (this._temporaryWebRedirectUri && !isMobile) {
+      return this._temporaryWebRedirectUri;
+    }
+    
+    if (this._temporaryMobileRedirectUri && isMobile) {
+      return this._temporaryMobileRedirectUri;
+    }
+    
+    console.log('ENV VARS DEBUG:', {
+      FT_OAUTH_REDIRECT_URI: process.env.FT_OAUTH_REDIRECT_URI || 'NOT SET',
+      FT_OAUTH_MOBILE_REDIRECT_URI: process.env.FT_OAUTH_MOBILE_REDIRECT_URI || 'NOT SET',
+      NODE_ENV: process.env.NODE_ENV || 'development'
+    });
+    
     // Check if environment variables are set
     if (!process.env.FT_OAUTH_REDIRECT_URI) {
       console.error('CRITICAL ERROR: FT_OAUTH_REDIRECT_URI not configured in environment variables');
-      return 'ERROR_MISSING_REDIRECT_URI';
+      return 'http://localhost:4200/oauth/callback'; // Default fallback to help users
     }
     
     // Mobile app redirects may use a different URI scheme

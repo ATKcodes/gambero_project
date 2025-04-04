@@ -228,3 +228,56 @@ ion-radio {
     margin-bottom: 8px;
   }
 }
+
+.button-icon {
+  height: 24px;
+  margin-right: 8px;
+}
+
+.uri-container {
+  margin-top: 10px;
+}
+
+.uri-display {
+  background-color: #f5f5f5;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  word-break: break-all;
+}
+
+code {
+  font-family: 'Courier New', monospace;
+  color: #333;
+}
+
+.setup-instructions {
+  margin-top: 16px;
+  font-size: 14px;
+  color: #666;
+}
+
+h4 {
+  margin-bottom: 6px;
+  color: #333;
+}
+
+.uri-display ion-button {
+  margin-left: 8px;
+}
+
+.custom-uri-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+ion-item-divider {
+  --background: #f5f5f5;
+  --color: #333;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
