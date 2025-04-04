@@ -164,6 +164,15 @@ export class ApiService {
 
   get42LoginUrl(isMobile = false): Observable<{ url: string }> {
     console.log('Requesting 42 OAuth URL (mobile:', isMobile, ')');
+    
+    // Force mobile to false when on localhost for browser testing
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      if (!window.navigator.userAgent.includes('Mobile')) {
+        console.log('Detected localhost in browser, forcing non-mobile OAuth URL');
+        isMobile = false;
+      }
+    }
+    
     return this.callWithFallback(url => 
       this.http.get<{ url: string }>(`${url}/auth/ft/login${isMobile ? '?mobile=true' : ''}`)
     );

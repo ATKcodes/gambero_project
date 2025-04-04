@@ -8,6 +8,7 @@ import { AuthService } from '../../services/auth.service';
 import { ApiService } from '../../services/api.service';
 import { environment } from '../../../environments/environment';
 import { HttpClient } from '@angular/common/http';
+import { Platform } from '@ionic/angular';
 
 // Color palette for the app
 // Primary color: #FFEBC3
@@ -41,13 +42,15 @@ export class LoginComponent implements OnInit {
   isSubmitting = false;
   apiStatus = 'Not tested';
   connectionDetails = '';
+  showLoading = false;
 
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
     private router: Router,
     private toastController: ToastController,
-    private http: HttpClient
+    private http: HttpClient,
+    private platform: Platform
   ) {}
   
   ngOnInit() {
@@ -171,39 +174,49 @@ export class LoginComponent implements OnInit {
     toast.present();
   }
 
-  login42(): void {
-    if (this.apiStatus !== 'Connected') {
-      this.showToast('Not connected to server. Please wait or try reconnecting.', 'warning');
-      this.testApiConnection();
-      return;
-    }
+  login42() {
+    console.log('Initiating 42 OAuth login flow');
+    this.showLoading = true;
+    console.log('Platform info:', {
+      isCapacitor: this.platform.is('capacitor'),
+      isAndroid: this.platform.is('android'),
+      isMobile: this.platform.is('mobile'),
+      platforms: this.platform.platforms()
+    });
     
-    console.log('Attempting login with 42');
-    
-    // Get the 42 OAuth URL and redirect the user
     this.authService.get42LoginUrl().subscribe({
-      next: (url: string | null) => {
+      next: (url) => {
+        this.showLoading = false;
         if (url) {
-          // Redirect to 42 OAuth page
-          console.log('Redirecting to 42 OAuth:', url);
+          console.log('42 login URL received:', url);
           
-          // If the URL contains our custom scheme, it's designed for the app
-          // Otherwise, it's for the browser
-          if (url.startsWith('com.jobconsultation.app://')) {
-            // For in-app handling with Capacitor
-            window.open(url, '_self');
+          // IMPORTANT: For browser testing on localhost, we need to use direct href
+          const isLocalhost = window.location.hostname === 'localhost' || 
+                              window.location.hostname === '127.0.0.1';
+                              
+          if (isLocalhost && !url.includes('com.jobconsultation.app://')) {
+            console.log('Browser detected, redirecting directly to:', url);
+            window.location.href = url;
+            return;
+          }
+          
+          // For mobile app
+          if (this.platform.is('capacitor') || this.platform.is('android')) {
+            console.log('Mobile app detected, opening in system browser');
+            window.open(url, '_system');
           } else {
-            // For browser handling
+            console.log('Redirecting to browser OAuth URL:', url);
             window.location.href = url;
           }
         } else {
-          console.error('Failed to get 42 OAuth URL');
-          this.showToast('Failed to get 42 OAuth URL');
+          console.error('Failed to get 42 login URL');
+          this.showToast('Failed to connect to 42 authentication service', 'danger');
         }
       },
-      error: (err: Error) => {
-        console.error('42 login error:', err);
-        this.showToast(`42 login error: ${err.message}`);
+      error: (err) => {
+        console.error('Error getting 42 login URL:', err);
+        this.showLoading = false;
+        this.showToast('Error connecting to authentication service', 'danger');
       }
     });
   }
