@@ -13,9 +13,9 @@ export class ApiService {
   // Fallback URLs in case the primary one doesn't work
   private apiUrls = [
     environment.apiUrl,                   // Primary URL from environment
-    'http://172.27.98.140:3000/api',      // Direct IP
+    'http://localhost:3000/api',          // Using ADB reverse
     'http://10.0.2.2:3000/api',           // Android emulator special IP
-    'http://localhost:3000/api'           // Localhost
+    'http://172.27.98.140:3000/api',      // Direct IP
   ];
   
   private currentApiUrlIndex = 0;
@@ -44,8 +44,16 @@ export class ApiService {
     
     this.http.get(`${url}/test`).pipe(
       timeout(5000), // 5 second timeout
+      tap(response => {
+        console.log(`API call response for ${url}:`, response);
+      }),
       catchError(error => {
         console.warn(`API URL ${url} failed:`, error);
+        if (error.status) {
+          console.error(`Status: ${error.status}, Message: ${error.message || 'No message'}`);
+        } else {
+          console.error('Network error details:', error);
+        }
         this.tryNextApiUrl(index + 1);
         return of(null);
       })

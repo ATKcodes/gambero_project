@@ -38,6 +38,25 @@ export class AppComponent implements OnInit {
       console.log('Is desktop:', this.platform.is('desktop'));
       console.log('API URL:', environment.apiUrl);
       
+      // Debug network connectivity
+      if (this.platform.is('android')) {
+        console.log('Testing backend connection from Android...');
+        const testUrl = environment.apiUrl + '/test';
+        console.log('Testing URL:', testUrl);
+        
+        fetch(testUrl)
+          .then(response => {
+            console.log('Backend connection test response status:', response.status);
+            return response.json();
+          })
+          .then(data => {
+            console.log('Backend connection test data:', data);
+          })
+          .catch(error => {
+            console.error('Backend connection test failed:', error);
+          });
+      }
+      
       // You might want to handle different platform initializations here
       
       // Setup deep link handling

@@ -2,16 +2,12 @@ export const environment = {
   production: false,
   
   // CHOOSE THE APPROPRIATE API URL BASED ON YOUR SETUP
-  // Uncomment one of these options and comment out the others
+  // For Android device using ADB reverse
+  apiUrl: 'http://localhost:3000/api',
   
-  // 1. Host machine IP address (BEST OPTION FOR REAL DEVICE TESTING)
-  apiUrl: 'http://172.27.98.140:3000/api',
-  
-  // 2. Android emulator special address (for emulator only)
-  // apiUrl: 'http://10.0.2.2:3000/api',
-  
-  // 3. Localhost (for web testing only)
-  // apiUrl: '/api',
+  // Alternative URLs
+  // apiUrl: 'http://172.27.98.140:3000/api',  // Host IP address
+  // apiUrl: 'http://10.0.2.2:3000/api',      // Android emulator special address
   
   // Debug settings
   logRequests: true,
