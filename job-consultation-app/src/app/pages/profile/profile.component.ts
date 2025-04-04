@@ -2,11 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { IonicModule, ToastController } from '@ionic/angular';
+import { IonicModule, ToastController, LoadingController } from '@ionic/angular';
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { AuthService } from '../../services/auth.service';
 import { User } from '../../models/user.model';
 import { ApiService } from '../../services/api.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-profile',
@@ -43,11 +44,16 @@ export class ProfileComponent implements OnInit {
   areasOfExpertise: string[] = [];
   availableExpertiseAreas = ['Pastry', 'Meat and fishes', 'Vegetarian', 'Wines'];
   
+  // JSONPlaceholder API
+  jsonPlaceholderUrl = 'https://jsonplaceholder.typicode.com';
+  
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
     private router: Router,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private http: HttpClient,
+    private loadingCtrl: LoadingController
   ) {}
   
   ngOnInit(): void {
@@ -123,30 +129,88 @@ export class ProfileComponent implements OnInit {
   }
   
   addCreditCard(): void {
+    // Replaced with JSONPlaceholder implementation
+    this.addCardWithJsonPlaceholder();
+  }
+  
+  async addCardWithJsonPlaceholder(): Promise<void> {
     if (!this.newCardNumber || !this.newCardHolder || !this.newCardExpiry) {
       this.showToast('Please fill all card details');
       return;
     }
     
+    // Create card object
     const lastFourDigits = this.newCardNumber.slice(-4);
-    
     const card = {
       cardNumber: this.newCardNumber,
       cardHolder: this.newCardHolder,
       expiryDate: this.newCardExpiry,
-      lastFourDigits
+      lastFourDigits,
+      userId: this.user?.id,
+      userType: this.user?.userType
     };
+
+    // Show loading
+    const loading = await this.loadingCtrl.create({
+      message: 'Processing card...',
+      spinner: 'circles'
+    });
+    await loading.present();
     
-    this.creditCards.push(card);
-    
-    // Reset form
-    this.newCardNumber = '';
-    this.newCardHolder = '';
-    this.newCardExpiry = '';
+    // Use JSONPlaceholder API to simulate adding a card
+    this.http.post(`${this.jsonPlaceholderUrl}/posts`, card).subscribe({
+      next: (response: any) => {
+        console.log('JSONPlaceholder response:', response);
+        loading.dismiss();
+        
+        // Add to local array (the JSONPlaceholder doesn't actually store it)
+        this.creditCards.push(card);
+        
+        // Show success message with the ID from JSONPlaceholder
+        this.showToast(`Card added successfully! Card ID: ${response.id}`);
+        
+        // Reset form
+        this.newCardNumber = '';
+        this.newCardHolder = '';
+        this.newCardExpiry = '';
+      },
+      error: (error) => {
+        loading.dismiss();
+        console.error('Error adding card:', error);
+        this.showToast('Error adding card. Please try again.');
+      }
+    });
   }
   
-  removeCreditCard(index: number): void {
-    this.creditCards.splice(index, 1);
+  async removeCreditCard(index: number): Promise<void> {
+    // Get the card ID (we'll use the index for demo purposes)
+    const cardId = index + 1;
+    
+    // Show loading
+    const loading = await this.loadingCtrl.create({
+      message: 'Removing card...',
+      spinner: 'circles'
+    });
+    await loading.present();
+    
+    // Use JSONPlaceholder to simulate card removal
+    this.http.delete(`${this.jsonPlaceholderUrl}/posts/${cardId}`).subscribe({
+      next: () => {
+        loading.dismiss();
+        
+        // Remove from local array
+        this.creditCards.splice(index, 1);
+        this.showToast('Card removed successfully!');
+      },
+      error: (error) => {
+        loading.dismiss();
+        console.error('Error removing card:', error);
+        
+        // For demo purposes, still remove from array since JSONPlaceholder doesn't actually delete
+        this.creditCards.splice(index, 1);
+        this.showToast('Card removed (demo mode).');
+      }
+    });
   }
   
   saveProfile(): void {

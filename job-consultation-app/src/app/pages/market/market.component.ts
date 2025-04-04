@@ -33,12 +33,31 @@ export class JobModalComponent implements OnInit {
   
   ngOnInit() {
     console.log('Job modal initialized with job:', this.jobRequest);
+    
+    // Ensure the job has all required properties
+    if (this.mode === 'view' && (!this.jobRequest || !this.jobRequest.id)) {
+      console.error('Invalid job object in modal:', this.jobRequest);
+      this.showToast('Error: Invalid job data');
+      setTimeout(() => this.modalCtrl.dismiss(), 2000);
+      return;
+    }
+    
     const currentUser = this.authService.getUser();
     const userType = this.authService.getUserType();
     
-    // Properly set canTakeJob flag
-    if (this.mode === 'view' && userType === 'seller' && this.jobRequest && this.jobRequest.status === 'open') {
+    console.log('Current user type:', userType);
+    console.log('Job status:', this.jobRequest.status);
+    
+    // Properly set canTakeJob flag - sellers can take open jobs
+    if (this.mode === 'view' && 
+        userType === 'seller' && 
+        this.jobRequest && 
+        this.jobRequest.status === 'open') {
+      console.log('Can take job set to true');
       this.canTakeJob = true;
+    } else {
+      console.log('Can take job set to false');
+      this.canTakeJob = false;
     }
   }
   
@@ -250,11 +269,38 @@ export class MarketComponent implements OnInit {
   }
   
   async viewJob(job: JobRequest) {
+    console.log('Opening job modal with job:', JSON.stringify(job));
+    
+    // Ensure job has all required properties before opening modal
+    if (!job.id) {
+      console.error('Job is missing ID:', job);
+      const toast = await this.toastCtrl.create({
+        message: 'Error: Invalid job data',
+        duration: 3000,
+        position: 'top'
+      });
+      await toast.present();
+      return;
+    }
+    
     const modal = await this.modalCtrl.create({
       component: JobModalComponent,
       componentProps: {
         mode: 'view',
-        jobRequest: {...job}
+        // Create a clean copy of the job with required properties guaranteed
+        jobRequest: {
+          id: job.id,
+          title: job.title,
+          description: job.description,
+          buyerId: job.buyerId,
+          sellerId: job.sellerId,
+          expertise: job.expertise,
+          price: job.price,
+          status: job.status,
+          answer: job.answer,
+          createdAt: job.createdAt,
+          updatedAt: job.updatedAt
+        }
       }
     });
     
